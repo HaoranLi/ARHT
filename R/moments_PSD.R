@@ -1,16 +1,13 @@
-# This is a function to calculate a consistent estimator of $p^{-1}tr(\Sigma^m)$ for any positive integer m,
-# given the spectral of the sample covariance matrix $S_n$.
-# Reference Lemma 1 of Bai, Chen, Yao (2010),
-# ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
-# Australian & New Zealand Journal of Statistics.
+#' A function to calculate a consistent estimator of $\frac{1}{p}tr(\Sigma^m)$ for any positive integer m,
+#' given the spectral of the sample covariance matrix $S_n$.
+#' Reference Lemma 1 of Bai, Chen, Yao (2010),
+#' ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
+#' Australian & New Zealand Journal of Statistics.
 
-# @emp_eig: eigenvalues of S_n.
-#
-# @gamma: p/n.
-#
-# @degree: the order of the moment.
-#
-# @return: the 1st, 2nd, ..., degree-th, order of moments of the distribution spectral of Sigma.
+#' @param emp_eig eigenvalues of S_n.
+#' @param gamma p/n.
+#' @param degree the order of the moment.
+#' @return The first \code{degree} number order of moments of the distribution spectral of Sigma.
 
 moments_PSD = function( eigenvalues,
                         n,

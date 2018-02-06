@@ -1,55 +1,41 @@
-# This is a function to conduct Adaptable Regularized Hotelling's T^2 test for one-sample testing problem
-#
-# @X: n-by-p observation matrix with  numeric column variables.
-#
-# @mu_0: the null hypothesis to be tested, default value is the 0 vector.
-#
-# @prob_alternative_prior: an umempty list with each field a numeric vector of length 3 with sum 1.
-#                          Default value is list(c(1,0,0), c(0,1,0), c(0,0,1)).
-#                          Each field of the list represents a probabilistic prior models specified by weights
-#                          of Sigma^0, Sigma^1, Sigma^2, etc.
-#
-# @Type1error_calib: the method to calibrate Type 1 error rate of the test. Four values are allowed,
-#                    cube_root (default and recommended, cube-root transformation),
-#                    sqrt (square-root transformation),
-#                    chi_sq (chi-square approximation),
-#                    none (no calibration).
-#
-# @lambda_range: a vector of two elements indicates the lower and upper bound of candidate lambda's;
-#                If null, recommended choices will be calculated.
-#
-# @lambda_net_density: postive numeric, default 2000. The number of grid points within the range of lambda's.
-#                      The grid is progressively coarser.
-#
-# @bootstrap_sample: a standard normal sample of dimension length(prob_alternative_prior)-By-bs_size
-#                    used to generated bootstrapped p-values; available only if more than one prior models are specified in
-#                    prob_alternative_prior and Type1error_calib is not chi_sq. If null, a sample will be generated automatically.
-#                    You may want to specify a bootstrap sample for re-utilization when executing the function repeatedly.
-#
-# @bs_size: a numeric scalar, default value 1e6, only available when bootstrap_sample = NULL and more than one prior models are
-#           specified in prob_alternative_prior; control the size of normal sample to be generated.
-#           Lower down its value to speed up computation.
-#
-# @return: Tstat: a vector of the same length of prob_alternative_prior.
-
-ARHT_OnePop = function(    X,
-                           mu_0 = NULL,
-                           prob_alternative_prior = list(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)),
-                           Type1error_calib = c("cube_root", "sqrt", "chi_sq", "none"),
-                           lambda_range = NULL,
-                           lambda_net_density = 2000,
-                           bootstrap_sample = NULL,
-                           bs_size = 1e6){
+#' Adaptable Regularized Hotelling's T^2 test for one-sample testing problem
+#' @param X n-by-p observation matrix with  numeric column variables.
+#' @param mu_0 the null hypothesis to be tested, default value is the 0 vector.
+#' @param prob_alternative_prior an umempty list with each field a numeric vector of length 3 with sum 1.
+#'                          Default value is list(c(1,0,0), c(0,1,0), c(0,0,1)).
+#'                          Each field of the list represents a probabilistic prior models specified by weights
+#'                          of $\Sigma^0$, $\Sigma^1$, $\Sigma^2$, etc.
+#' @param Type1error_calib the method to calibrate Type 1 error rate of the test. Four values are allowed,
+#'                    cube_root (default and recommended, cube-root transformation),
+#'                    sqrt (square-root transformation),
+#'                    chi_sq (chi-square approximation),
+#'                    none (no calibration).
+#' @param lambda_range a vector of two elements indicates the lower and upper bound of candidate lambda's;
+#'                If null, recommended choices will be calculated.
+#' @param lambda_net_density postive numeric, default 2000. The number of grid points within the range of lambda's.
+#'                      The grid is progressively coarser.
+#' @param bs_size a numeric scalar, default value 1e6, only available when more than one prior models are
+#'           specified in prob_alternative_prior; control the size of bootstrap sample used to approximate p-values.
+#' @return Tstat: a vector of the same length of prob_alternative_prior.
+#' @example ARHT_OnePop(matrix(rnorm(500*100), ncol =500, nrow =100))
+ARHT_OnePop = function( X,
+                        mu_0 = NULL,
+                        prob_alternative_prior = list(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)),
+                        Type1error_calib = c("cube_root", "sqrt", "chi_sq", "none"),
+                        lambda_range = NULL,
+                        lambda_net_density = 2000,
+                        bootstrap_sample = NULL,
+                        bs_size = 1e6){
 
         if(missing(X))
                 stop("X is missing")
-
         if (length(dim(X)) > 2L || !(is.numeric(X)))
-                stop("'X' must be a numeric matrix with column variables")
-
+                stop("X must be a numeric matrix with column variables")
         if (!is.matrix(X))
                 X <- as.matrix(X)
-
+        if(nrow(X) <= 1L){
+                stop("X must have at least 2 observations.")
+        }
         if(!is.null(mu_0)){
                 if(!is.vector(mu_0, mode = "numeric"))
                         stop("mu_0 must be a numeric vector")
@@ -58,7 +44,6 @@ ARHT_OnePop = function(    X,
         }else{
                 mu_0 = rep(0, ncol(X))
         }
-
         if(!is.list(prob_alternative_prior))
                 stop("prob_alternative_prior must be a list of numeric vectors")
 
@@ -93,21 +78,12 @@ ARHT_OnePop = function(    X,
                 stop("Chi-square calibration of Type 1 error is not available when the number of prior models
                      is larger than 3")
         }
-
-        if(length(prob_alternative_prior)>1L & (Type1error_calib[1] != "chi_sq")){
-                if(!is.null(bootstrap_sample)){
-                        if(nrow(bootstrap_sample) != length(prob_alternative_prior))
-                                stop("bootstrap_sample must have the number of rows equal
-                                     to the length of prob_alternative_prior.")
-                        if(ncol(bootstrap_sample) <= 1e4)
-                                warning("Bootstrap sample size is too small; estimated p-value is not reliable.")
-                }
-                if(is.null(bootstrap_sample)){
-                        if(bs_size < 1e4)
-                                warning("Bootstrap sample size is too small; estimated p-value is not reliable.")
-                                bootstrap_sample = matrix(rnorm(length(prob_alternative_prior)*bs_size),
-                                                          ncol = bs_size)
-                }
+        if(length(prob_alternative_prior)>1L & (bs_size < 1e4)){
+                warning("Bootstrap sample size is too small; estimated p-value is not reliable.")
+        }
+        if(Type1error_calib[1] != "chi_sq"){
+                bootstrap_sample = matrix(rnorm(length(prob_alternative_prior)*bs_size),
+                                          ncol = bs_size)
         }
 
         n = nrow(X)
@@ -221,59 +197,76 @@ ARHT_OnePop = function(    X,
         RHT = sapply(lambda[opt_lambda_index], function(xx){
                 (1/p) * sum( proj_y^2 / (emp_eig + xx))}
         )
-        if(Type1error_calib[1] == "cube_root"){
-                RHT_std = {sqrt(p) * ( RHT^{1/3} - (Theta1[opt_lambda_index])^{1/3})/
-                                sqrt(2*Theta2[opt_lambda_index]) / (1 / 3 * Theta1[opt_lambda_index]^{-2/3}) }
-        }
-        if(Type1error_calib[1] == "sqrt"){
-                RHT_std = {sqrt(p) * (sqrt(RHT) - sqrt(Theta1[opt_lambda_index]))/
-                                sqrt(Theta2[opt_lambda_index] / 2 / Theta1[opt_lambda_index])}
-        }
-        if(Type1error_calib[1] == "none"){
-                RHT_std = (RHT - Theta1[opt_lambda_index]) / sqrt(2 * Theta2[opt_lambda_index] / p)
-        }
+        if(Type1error_calib[1] != "chi_sq"){
+                if(Type1error_calib[1] == "cube_root"){
+                        RHT_std = {sqrt(p) * ( RHT^{1/3} - (Theta1[opt_lambda_index])^{1/3})/
+                                        sqrt(2*Theta2[opt_lambda_index]) / (1 / 3 * Theta1[opt_lambda_index]^{-2/3}) }
+                }
+                if(Type1error_calib[1] == "sqrt"){
+                        RHT_std = {sqrt(p) * (sqrt(RHT) - sqrt(Theta1[opt_lambda_index]))/
+                                        sqrt(Theta2[opt_lambda_index] / 2 / Theta1[opt_lambda_index])}
+                }
+                if(Type1error_calib[1] == "none"){
+                        RHT_std = (RHT - Theta1[opt_lambda_index]) / sqrt(2 * Theta2[opt_lambda_index] / p)
+                }
 
-        # p-values
-        if(length(prob_alternative_prior) == 1){
-                p_value = 1 - pnorm(RHT_std)
-        }else{
-                Tmax = apply(G_sqrt %*% bootstrap_sample,2,max)
-                p_value = 1 - mean(max(RHT_std)>Tmax)
+                # p-values
+                if(length(prob_alternative_prior) == 1){
+                        p_value = 1 - pnorm(RHT_std)
+                }else{
+                        Tmax = apply(G_sqrt %*% bootstrap_sample,2,max)
+                        p_value = 1 - mean(max(RHT_std)>Tmax)
+                }
         }
 
         if(Type1error_calib[1] == "chi_sq"){
-                # Trick: add dummy variables to make the length of opt_lambda_index when less than 3 priors are specified
-                # max(RHT(lambda_1), RHT(lambda_2), RHT(lambda_1)) = max(RHT(lambda_1), RHT(lambda_2))
-                length3_opt_lambda_index = c(opt_lambda_index, rep(opt_lambda_index[1],
-                                                                   times = 3 - length(opt_lambda_index)))
-                # expand G to 3 variables
-                if( length(opt_lambda_index) == 1L){
-                        G_expand = matrix(1, nrow = 3, ncol = 3)
-                }
-                if( length(opt_lambda_index) == 2L){
-                        G_tmp = G_sqrt %*% t(G_sqrt)
-                        G_expand = rbind( cbind(G_tmp, c(1, G_tmp[1,2])), c(1, G_tmp[1,2], 1))
-                }
-                if( length(opt_lambda_index) == 3L){
-                        G_expand = G_sqrt %*% t(G_sqrt)
-                }
-                constant_coef = Theta2[length3_opt_lambda_index] / Theta1[length3_opt_lambda_index]
-                degree_freedom = ceiling( p * (Theta1[length3_opt_lambda_index])^2 / Theta2[length3_opt_lambda_index])
-                covariance3 = floor(c(  (degree_freedom[1])^(1/2) * (degree_freedom[2])^(1/2) * G_expand[1,2],
-                                        (degree_freedom[1])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[1,3],
-                                        (degree_freedom[2])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[2,3]))
+                if(length(opt_lambda_index) == 1L){
+                        # when one prior model is specified, no need for bootstrap
+                        constant_coef = Theta2[opt_lambda_index] / Theta1[opt_lambda_index]
+                        degree_freedom =  p * (Theta1[opt_lambda_index])^2 / Theta2[opt_lambda_index]
+                        pvalue = 1 - pchisq( p * RHT / constant_coef, df = degree_freedom)
+                }else{
+                        if( length(opt_lambda_index) == 2L){
+                                # Trick: add dummy variables to make the length of opt_lambda_index when less than 3 priors are specified
+                                # max(RHT(lambda_1), RHT(lambda_2), RHT(lambda_1)) = max(RHT(lambda_1), RHT(lambda_2))
+                                length3_opt_lambda_index = c(opt_lambda_index, opt_lambda_index[1])
+                                # expand G to 3 variables
+                                G_tmp = G_sqrt %*% t(G_sqrt)
+                                G_expand = rbind( cbind(G_tmp, c(1, G_tmp[1,2])), c(1, G_tmp[1,2], 1))
+                        }else{  # when 3 prior models are specified
+                                length3_opt_lambda_index = opt_lambda_index
+                                G_expand = G_sqrt %*% t(G_sqrt)
+                        }
+                        #constant * chisq(degree_freedom); round covariances down
+                        constant_coef = Theta2[length3_opt_lambda_index] / Theta1[length3_opt_lambda_index]
+                        degree_freedom = ceiling( p * (Theta1[length3_opt_lambda_index])^2 / Theta2[length3_opt_lambda_index])
+                        covariance3 = floor(c(  (degree_freedom[1])^(1/2) * (degree_freedom[2])^(1/2) * G_expand[1,2],
+                                                (degree_freedom[1])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[1,3],
+                                                (degree_freedom[2])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[2,3]))
 
-                # Build three diag matrices Q1, Q2, Q3.  z^TQ_1z, z^TQ_2z, z^TQ_3z would be the chi-square vector
-                mincov = min(covariance3)
-                part1 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(0,covariance3[3]-mincov))
-                part2 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(0,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
-                part3 = c(rep(1,mincov), rep(0,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
-                reminder1 = max(degree_freedom[1] - sum(part1), 0)
-                reminder2 = max(degree_freedom[2] - sum(part2), 0)
-                reminder3 = max(degree_freedom[3] - sum(part3), 0)
-                Q1 = c(part1, rep(1, reminder1), rep(0, reminder2), rep(0, reminder3))
-                Q2 = c(part2, rep(0, reminder1), rep(1, reminder2), rep(0, reminder3))
-                Q3 = c(part3, rep(0, reminder1), rep(0, reminder2), rep(1, reminder3))
+                        # Build three diag matrices Q1, Q2, Q3.  z^TQ_1z, z^TQ_2z, z^TQ_3z would be the chi-square vector
+                        # See supplementary material for algorithm explanation
+                        mincov = min(covariance3)
+                        part1 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(0,covariance3[3]-mincov))
+                        part2 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(0,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
+                        part3 = c(rep(1,mincov), rep(0,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
+                        ramainder1 = max(degree_freedom[1] - sum(part1), 0)
+                        ramainder2 = max(degree_freedom[2] - sum(part2), 0)
+                        ramainder3 = max(degree_freedom[3] - sum(part3), 0)
+                        Q1 = c(part1, rep(1, ramainder1), rep(0, ramainder2), rep(0, ramainder3))
+                        Q2 = c(part2, rep(0, ramainder1), rep(1, ramainder2), rep(0, ramainder3))
+                        Q3 = c(part3, rep(0, ramainder1), rep(0, ramainder2), rep(1, ramainder3))
+
+                        #chi-squared(1) sample
+                        bootstrap_sample = matrix((rnorm(length(Q1) * bs_size))^2, nrow = length(Q1), ncol = bs_size)
+                        chisq1 = colSums(Q1 * bootstrap_sample)
+                        chisq2 = colSums(Q2 * bootstrap_sample)
+                        chisq3 = colSums(Q3 * bootstrap_sample)
+                        T1sample = (1/p*constant.coef[1] * chisq1 - Theta1[1])/sqrt(2*Theta2[1]/p)
+                        T2sample = (1/p*constant.coef[2] * chisq2 - Theta1[2])/sqrt(2*Theta2[2]/p)
+                        T3sample = (1/p*constant.coef[3] * chisq3 - Theta1[3])/sqrt(2*Theta2[3]/p)
+                        Tmax = pmax(T1sample, T2sample, T3sample)
+                }
         }
 
 
