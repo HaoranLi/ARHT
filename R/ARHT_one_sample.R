@@ -17,7 +17,8 @@
 #' @param bs_size a numeric scalar, default value 1e6, only available when more than one prior models are
 #'           specified in prob_alternative_prior; control the size of bootstrap sample used to approximate p-values.
 #' @return Tstat: a vector of the same length of prob_alternative_prior.
-#' @example ARHT_OnePop(matrix(rnorm(500*100), ncol =500, nrow =100))
+
+
 ARHT_OnePop = function( X,
                         mu_0 = NULL,
                         prob_alternative_prior = list(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)),
@@ -224,7 +225,7 @@ ARHT_OnePop = function( X,
                         # when one prior model is specified, no need for bootstrap
                         constant_coef = Theta2[opt_lambda_index] / Theta1[opt_lambda_index]
                         degree_freedom =  p * (Theta1[opt_lambda_index])^2 / Theta2[opt_lambda_index]
-                        pvalue = 1 - pchisq( p * RHT / constant_coef, df = degree_freedom)
+                        p_value = 1 - pchisq( p * RHT / constant_coef, df = degree_freedom)
                 }else{
                         if( length(opt_lambda_index) == 2L){
                                 # Trick: add dummy variables to make the length of opt_lambda_index when less than 3 priors are specified
@@ -266,69 +267,9 @@ ARHT_OnePop = function( X,
                         T2sample = (1/p*constant.coef[2] * chisq2 - Theta1[2])/sqrt(2*Theta2[2]/p)
                         T3sample = (1/p*constant.coef[3] * chisq3 - Theta1[3])/sqrt(2*Theta2[3]/p)
                         Tmax = pmax(T1sample, T2sample, T3sample)
+
+                        RHT_std = (RHT - Theta1[opt_lambda_index])/sqrt(2*Theta2[opt_lambda_index]/p)
+                        p_value = 1 - mean(max(RHT_std)>Tmax)
                 }
         }
-
-
-
-
 }
-
-
-
-constant.coef<-Theta2/Theta1  ### use c*chisq (k) to approximate RHT distribution
-degree.freedom<-p*Theta1^2/Theta2
-cutoff.chisq<-1/p*constant.coef*qchisq(0.95,df=degree.freedom) ###95% cut-off value for 1/p RHT with chi-square approximation
-
-
-cov.chisq<-diag(sqrt(2*p*Theta2[opt.lambda.index])/constant.coef[opt.lambda.index]) ##see the next line
-Gamma.prime<-cov.chisq%*%G.sqrt%*%t(G.sqrt)%*%cov.chisq ### covariance matrix for RHT(lambda1), RHT(lambda2),RHT(lambda3)
-normalizer<-diag(c(sqrt(1/diag(Gamma.prime)[diag(Gamma.prime)>0]),diag(Gamma.prime)[diag(Gamma.prime<=0)]))##to get correlation matrix
-correlationmat<-normalizer%*%Gamma.prime%*%normalizer ##correlation matrix
-degree.freedom.round<-round(degree.freedom[opt.lambda.index]) ### k1, k2, k3
-Gamma.primeprime<-round(diag(sqrt(degree.freedom.round))%*%correlationmat%*%diag(sqrt(degree.freedom.round)),6)### number of normal dist
-Gamma.primeprime<-Gamma.primeprime*(Gamma.primeprime>=0)   #### only consider positive covariance
-covariance3<-floor(c(Gamma.primeprime[1,2],Gamma.primeprime[1,3],Gamma.primeprime[2,3])) ### covariance 12, 13, 23
-mincov<-min(covariance3)  ### minmum covariance
-
-##correlated part for chisq(k1)
-part1<-c(rep(1,mincov),rep(1,covariance3[1]-mincov),rep(1,covariance3[2]-mincov),rep(0,covariance3[3]-mincov))
-##correlated part for chisq(k2)
-part2<-c(rep(1,mincov),rep(1,covariance3[1]-mincov),rep(0,covariance3[2]-mincov),rep(1,covariance3[3]-mincov))
-##correlated part for chisq(k3)
-part3<-c(rep(1,mincov),rep(0,covariance3[1]-mincov),rep(1,covariance3[2]-mincov),rep(1,covariance3[3]-mincov))
-
-reminder1<-max(degree.freedom.round[1]-sum(part1==1),0)## how many 1s remaining for chisq(k1)
-reminder2<-max(degree.freedom.round[2]-sum(part2==1),0)## how many 1s remaining for chisq(k2)
-reminder3<-max(degree.freedom.round[3]-sum(part3==1),0)## how many 1s remaining for chisq(k3)
-
-### Three diagonals for three quadratic forms
-Q1<-c(part1,rep(1,reminder1),rep(0,reminder2),rep(0,reminder3)) ### Z^T diag(Q1) Z is chisq(k1)
-Q2<-c(part2,rep(0,reminder1),rep(1,reminder2),rep(0,reminder3)) ### Z^T diag(Q2) Z is chisq(k2)
-Q3<-c(part3,rep(0,reminder1),rep(0,reminder2),rep(1,reminder3)) ### Z^T diag(Q3) Z is chisq(k3)
-
-
-chisqdim<-length(Q1)
-Tmax.chisq<-numeric(B)
-###sample from max(chisq(k1),chisq(k2),chisq(k3))
-for(i in 1:B){
-        Z<-rnorm(chisqdim)
-        Z2<-Z*Z              ##Z*Z
-        chisq1<-sum(Z2*Q1)   ##chisq 1
-        chisq2<-sum(Z2*Q2)   ##chisq 2
-        chisq3<-sum(Z2*Q3)   ##chisq 3
-        T1sample<-(1/p*constant.coef[opt.lambda.index[1]]*chisq1-Theta1[opt.lambda.index[1]])/sqrt(2*Theta2[opt.lambda.index[1]]/p) ##sample of T1
-        T2sample<-(1/p*constant.coef[opt.lambda.index[2]]*chisq2-Theta1[opt.lambda.index[2]])/sqrt(2*Theta2[opt.lambda.index[2]]/p) ##sample of T2
-        T3sample<-(1/p*constant.coef[opt.lambda.index[3]]*chisq3-Theta1[opt.lambda.index[3]])/sqrt(2*Theta2[opt.lambda.index[3]]/p) ##sample of T3
-        Tmax.chisq[i]<-max(T1sample,T2sample,T3sample)
-}
-
-### The bootstraped p-values
-p_value.RHT.Tmax<-1-mean(max(RHT.std)>Tmax)
-p_value.RHT.sqrt.Tmax<-1-mean(max(RHT.std.sqrt)>Tmax)
-p_value.RHT.cubic.Tmax<-1-mean(max(RHT.std.cubic)>Tmax)
-p_value.RHT.chisq.Tmax<-1-mean(max(RHT.std)>Tmax.chisq)
-
-res.pvalue<-c(p_value.RHT.Tmax,p_value.RHT.sqrt.Tmax,p_value.RHT.cubic.Tmax,p_value.RHT.chisq.Tmax)
-names(res.pvalue)<-c("RHT","RHT.sqrt","RHT.cubic","RHT.chisq")
-return(list(T=T.RHT,pvalue=res.pvalue))
