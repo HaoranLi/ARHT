@@ -2,28 +2,28 @@
 % Please edit documentation in R/moments_PSD.R
 \name{moments_PSD}
 \alias{moments_PSD}
-\title{A function to calculate a consistent estimator of $\frac{1}{p}tr(\Sigma^m)$ for any positive integer m,
-given the spectral of the sample covariance matrix $S_n$.
-Reference Lemma 1 of Bai, Chen, Yao (2010),
-ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
-Australian & New Zealand Journal of Statistics.}
+\title{A function to calculate consistent estimators of the moments of the limiting spectral distribution of the population covariance matrix
+given the spectral of the sample covariance matrix}
 \usage{
-moments_PSD(eigenvalues, n, degree)
+moments_PSD(eigenvalues, n, mom_degree)
 }
 \arguments{
-\item{degree}{the order of the moment.}
+\item{n}{degree of freedom}
 
-\item{emp_eig}{eigenvalues of S_n.}
+\item{emp_eig}{eigenvalues of the sample covariance matrix}
 
-\item{gamma}{p/n.}
+\item{degree}{the maximum order of the moments to calculate}
 }
 \value{
-The first \code{degree} number order of moments of the distribution spectral of Sigma.
-}
-\description{
-A function to calculate a consistent estimator of $\frac{1}{p}tr(\Sigma^m)$ for any positive integer m,
-given the spectral of the sample covariance matrix $S_n$.
-Reference Lemma 1 of Bai, Chen, Yao (2010),
+The first \code{mom_degree} number order of moments of the limiting spectral distribution of the population covariance matrix
 ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
 Australian & New Zealand Journal of Statistics.
 }
+\description{
+A function to calculate consistent estimators of the moments of the limiting spectral distribution of the population covariance matrix
+given the spectral of the sample covariance matrix
+}
+\keyword{estimators}
+\keyword{moments}
+\keyword{population}
+\keyword{spectral}
