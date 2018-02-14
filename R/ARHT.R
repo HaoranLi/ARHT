@@ -1,32 +1,42 @@
-#' Adaptable Regularized Hotelling's T^2 test for one-sample testing problem
+#' Adaptable Regularized Hotelling's T^2 test for high-dimensional data
 #' @param X n-by-p observation matrix with  numeric column variables.
-#' @param mu_0 the null hypothesis to be tested, default value is the 0 vector.
-#' @param prob_alternative_prior an umempty list with each field a numeric vector of length 3 with sum 1.
-#'                          Default value is list(c(1,0,0), c(0,1,0), c(0,0,1)).
-#'                          Each field of the list represents a probabilistic prior models specified by weights
-#'                          of $\Sigma^0$, $\Sigma^1$, $\Sigma^2$, etc.
+#' @param Y optional; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test is conduct on \code{X} and \code{Y}
+#' @param mu_0 the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector
+#' @param prob_alt_prior an umempty list with each field a numeric vector with sum 1;
+#'                          default value is \code{list(c(1,0,0),c(0,1,0),c(0,0,1))};
+#'                          each field of the list represents a probabilistic prior models specified by weights
+#'                          of \eqn{\Sigma^0}, \eqn{\Sigma}, \eqn{\Sigma^2}, ... where \eqn{\Sigma} is the population covariance matrix
 #' @param Type1error_calib the method to calibrate Type 1 error rate of the test. Four values are allowed,
-#'                    cube_root (default, cube-root transformation),
-#'                    sqrt (square-root transformation),
-#'                    chi_sq (chi-square approximation),
-#'                    none (no calibration).
-#' @param lambda_range Optional user-supplied lambda sequence; default is NULL, and ARHT chooses
+#' \itemize{
+#'                    \item{\code{cube_root}} the default value, cube-root transformation
+#'                    \item{\code{sqrt}} square-root transformation
+#'                    \item{\code{chi_sq}} chi-square approximationm, not available when more than 3 models are specified in \code{prob_alt_prior}
+#'                    \item{\code{none}} no calibration
+#'                    }
+#' @param lambda_range Optional user-supplied lambda sequence; If \code{NULL}, and ARHT chooses
 #'    its own sequence
-#' @param nlambda  Optional user-supplied number of lambda's in grid search; Default is 2000; Must be postive numeric. The grid is progressively coarser.
+#' @param nlambda  Optional; user-supplied number of lambda's in grid search; default to be 2000; the grid is progressively coarser
 #'
-#' @param bs_size a numeric scalar, default value 1e6, only available when more than one prior models are
-#'           specified in prob_alternative_prior; control the size of bootstrap sample used to approximate p-values.
-#' @return Tstat: a vector of the same length of prob_alternative_prior.
-
+#' @param bs_size positive numeric with default value 1e5; only available when more than one prior models are
+#'           specified in \code{prob_alt_prior}; control the size of the bootstrap sample used to approximate p-values.
+#' @return \itemize{
+#' \item{\code{ARHT_pvalue}}: The p-value of ARHT test
+#' \item{\code{RHT_pvalue}}: The p-value of RHT test with the optimal lambda of each prior model in \code{prob_alt_prior}
+#' \item{\code{RHT_std}}: The standardized RHT statistics with the optimal lambda of each prior model in \code{prob_alt_prior}
+#' (the statistic of ARHT is its maxima)
+#' \item{\code{RHT_opt_lambda}}: The optimal lambda's of each prior model in \code{prob_alt_prior}}
+#' @examples
+#' n = 300; p =500
+#' X = matrix(rnorm(n * p), nrow = n, ncol = p)
+#' ARHT(X)
 ARHT = function(X,
                 Y = NULL,
                 mu_0 = NULL,
-                prob_alternative_prior = list(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)),
+                prob_alt_prior = list(c(1, 0, 0), c(0, 1, 0), c(0, 0, 1)),
                 Type1error_calib = c("cube_root", "sqrt", "chi_sq", "none"),
                 lambda_range = NULL,
                 nlambda = 2000,
-                #bootstrap_sample = NULL,
-                bs_size = 1e6){
+                bs_size = 1e5){
 
         if(length(dim(X)) > 2L || !(is.numeric(X)))
                 stop("X must be a numeric matrix with column variables")
@@ -61,14 +71,22 @@ ARHT = function(X,
                 mu_0 = numeric(ncol(X))
         }
 
-        if(!is.list(prob_alternative_prior))
-                stop("prob_alternative_prior must be a list of numeric vectors")
+        if(!is.list(prob_alt_prior))
+                stop("prob_alt_prior must be a list of numeric vectors")
 
-        if(!all(sapply(prob_alternative_prior, is.vector, mode = "numeric")))
-                stop("prob_alternative_prior must be a list of numeric vectors")
+        if(!all(sapply(prob_alt_prior, is.vector, mode = "numeric")))
+                stop("prob_alt_prior must be a list of numeric vectors")
 
-        if(any(sapply(prob_alternative_prior, function(a){sum(a) != 1})))
-                stop("prior weights must have sum 1")
+        valid_prob_alt_prior = sapply(prob_alt_prior, function(a){sum(a) != 1})
+        if(any(valid_prob_alt_prior)){
+                stop(paste("In Model", paste( which(valid_prob_alt_prior), collapse = ", "),
+                           "specified in prob_alt_prior, the sum of prior weights is not 1"))
+        }
+
+        # throw away meaningless 0's and shorten prob_alt_prior
+        max_nonzero_index = max(sapply(prob_alt_prior, function(xxx) max(which(xxx != 0))))
+        prob_alt_prior = lapply(prob_alt_prior, function(xxx){
+                xxx[1: min(length(xxx), max_nonzero_index)]})
 
         if(!is.null(lambda_range)){
                 if(!is.vector(lambda_range, mode = "numeric"))
@@ -87,15 +105,15 @@ ARHT = function(X,
                 stop("nlambda must be postive")
         nlambda = ceiling(nlambda)
 
-        if(!(Type1error_calib[1] %in% c("cube_root", "sqrt", "chi_sq", "original"))){
+        if(!(Type1error_calib[1] %in% c("cube_root", "sqrt", "chi_sq", "none"))){
                 Type1error_calib = "cube_root"
                 warning('Unknown value for Type1error_calib; default value "cube_root" is chosen instead')
         }
-        if( (length(prob_alternative_prior) >3L) && (Type1error_calib[1] == "chi_sq")){
+        if( (length(prob_alt_prior) >3L) && (Type1error_calib[1] == "chi_sq")){
                 stop("Chi-square calibration of Type 1 error is not available when the number of prior models
                      is larger than 3")
         }
-        if(length(prob_alternative_prior)>1L ){
+        if(length(prob_alt_prior)>1L ){
                 if( (!is.numeric(bs_size)) || (length(bs_size)!= 1) )
                         stop("bs_size must be numeric of length 1")
                 if(bs_size <=0 )
@@ -105,8 +123,8 @@ ARHT = function(X,
         }
         bs_size = ceiling(bs_size)
 
-        if((Type1error_calib[1] != "chi_sq") && (length(prob_alternative_prior)>1L)){
-                bootstrap_sample = matrix(rnorm(length(prob_alternative_prior)*bs_size),
+        if((Type1error_calib[1] != "chi_sq") && (length(prob_alt_prior)>1L)){
+                bootstrap_sample = matrix(rnorm(length(prob_alt_prior)*bs_size),
                                           ncol = bs_size)
         }
 
@@ -121,6 +139,12 @@ ARHT = function(X,
         gamma = p/n
         proj_diff = eig_proj$proj_shift
         ridge = eig_proj$lower_lambda
+
+#        testp <<- p
+#        testn <<- n
+#       testgamma <<- p/n
+#        testproj_diff<<- proj_diff
+
 
         # To speed up the computation of Stieltjes transform, separate positive eigenvalues and negative ones.
         positive_emp_eig = eig_proj$pos_eig_val
@@ -138,32 +162,48 @@ ARHT = function(X,
                                  length = nlambda))
         }
 
+#        lambda <<- lambda
+
         ## Stieltjes transform, its derivative, Theta_1, Theta_2
         mF = 1/p * ( rowSums(1/outer(lambda, positive_emp_eig, FUN = "+"))
                      + num_zero_emp_eig/lambda )
+
+#        testmF <<-mF
+
         mFprime = 1/p * (rowSums(1/(outer(lambda, positive_emp_eig, FUN = "+"))^2)
                          + num_zero_emp_eig/lambda^2)
         Theta1 = (1 - lambda*mF)/(1 - gamma*(1 - lambda * mF))
+
+#        testTheta1 <<- Theta1
+
         Theta2 = (1 + gamma*Theta1)^2 * (Theta1 - lambda *(mF - lambda * mFprime)/(1 - gamma*(1 - lambda * mF))^2)
 
+#        testTheta2 <<- Theta2
+
         # Calculate the power under each prior model
-        prior_max_order = max(sapply(prob_alternative_prior,length))
-        unified_prob_alternative_prior = lapply(prob_alternative_prior, function(i) c(i, rep(0, times = max(prior_max_order,2) - length(i))))
-        matrix_prob_alternative_prior = do.call(rbind, unified_prob_alternative_prior)
+        prior_max_order = max(sapply(prob_alt_prior,length))
+        unified_prob_alt_prior = lapply(prob_alt_prior, function(i) c(i, rep(0, times = max(prior_max_order,2) - length(i))))
+        matrix_prob_alt_prior = do.call(rbind, unified_prob_alt_prior)
         if(prior_max_order <= 2L){
                 rhos = rbind(mF, Theta1)
         }else{
                 pop_moments = moments_PSD(emp_eig, n, prior_max_order-2)
+                testpop_moments <<- pop_moments
                 rhos = matrix(NA, nrow = prior_max_order, ncol = length(mF))
-                rhos[1,] = mF
-                rhos[2,] = Theta1
+                rhos[1, ] = mF
+                rhos[2, ] = Theta1
                 # recursive formulas; cannot be parallel
                 for(ii in 3:prior_max_order){
-                        rhos[ii,] = (1 + gamma * Theta1) * (pop_moments[ii-2] - lambda * rhos[ii-1])
+                        rhos[ii,] = (1 + gamma * Theta1) * (pop_moments[ii-2] - lambda * rhos[ii-1, ])
                 }
         }
-        powers = t(matrix_prob_alternative_prior %*% rhos) / sqrt(2*gamma*Theta2) # Column: prior model; Row: lambda
+        powers = t(matrix_prob_alt_prior %*% rhos) / sqrt(2*gamma*Theta2) # Column: prior model; Row: lambda
+#        testrhos <<- rhos
+#        testpowers<<- powers
+
         opt_lambda_index = apply(powers, 2, which.max) # optimal lambda index under each prior model
+
+#        test_opt_lambda_index <<- opt_lambda_index
 
         ## Estimated covariance matrix of standardized RHT statistics with optimal lambda's
         G = matrix( apply( expand.grid(opt_lambda_index, opt_lambda_index), 1,
@@ -188,10 +228,15 @@ ARHT = function(X,
         G_eval_plus = G_eval * (G_eval >= 0)
         G_sqrt = G_evec %*% diag(sqrt(G_eval_plus))
 
+#        testG_sqrt <<- G_sqrt
+
         # standardized statistics
         RHT = sapply(lambda[opt_lambda_index], function(xx){
                 (1/p) * sum( proj_diff^2 / (emp_eig + xx))}
         )
+ #       testRHT <<- RHT
+
+
         if(Type1error_calib[1] != "chi_sq"){
                 if(Type1error_calib[1] == "cube_root"){
                         RHT_std = {sqrt(p) * ( RHT^(1/3) - (Theta1[opt_lambda_index])^(1/3)) /
@@ -205,7 +250,7 @@ ARHT = function(X,
                         RHT_std = (RHT - Theta1[opt_lambda_index]) / sqrt(2 * Theta2[opt_lambda_index] / p)
                 }
                 # p-values
-                if(length(prob_alternative_prior) == 1){
+                if(length(prob_alt_prior) == 1){
                         p_value = 1 - pnorm(RHT_std)
                         composite_p_value = p_value
                 }else{
@@ -215,15 +260,17 @@ ARHT = function(X,
                 }
         }
 
+#        testRHT_std <<- RHT_std
+
         if(Type1error_calib[1] == "chi_sq"){
-                if(length(prob_alternative_prior) == 1L){
+                if(length(prob_alt_prior) == 1L){
                         # when one prior model is specified, no need for bootstrap
                         constant_coef = Theta2[opt_lambda_index] / Theta1[opt_lambda_index]
                         degree_freedom =  p * (Theta1[opt_lambda_index])^2 / Theta2[opt_lambda_index]
                         p_value = 1 - pchisq( p * RHT / constant_coef, df = degree_freedom)
                         composite_p_value = p_value
                 }else{
-                        if( length(prob_alternative_prior) == 2L){
+                        if( length(prob_alt_prior) == 2L){
                                 # Trick: add dummy variables to make the length of opt_lambda_index when less than 3 priors are specified
                                 # max(RHT(lambda_1), RHT(lambda_2), RHT(lambda_1)) = max(RHT(lambda_1), RHT(lambda_2))
                                 length3_opt_lambda_index = c(opt_lambda_index, opt_lambda_index[1])
@@ -234,41 +281,24 @@ ARHT = function(X,
                                 length3_opt_lambda_index = opt_lambda_index
                                 G_expand = G_sqrt %*% t(G_sqrt)
                         }
-                        G_expand = G_expand * (G_expand >=0)
-
-                        #constant * chisq(degree_freedom); round covariances down
+                        # Call r3chisq to get the generated 3-vairate chi-square bootstrap sample
                         constant_coef = Theta2[length3_opt_lambda_index] / Theta1[length3_opt_lambda_index]
                         degree_freedom = ceiling( p * (Theta1[length3_opt_lambda_index])^2 / Theta2[length3_opt_lambda_index])
-                        covariance3 = floor(c(  (degree_freedom[1])^(1/2) * (degree_freedom[2])^(1/2) * G_expand[1,2],
-                                                (degree_freedom[1])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[1,3],
-                                                (degree_freedom[2])^(1/2) * (degree_freedom[3])^(1/2) * G_expand[2,3]))
-
-                        # Build three diag matrices Q1, Q2, Q3.  z^TQ_1z, z^TQ_2z, z^TQ_3z would be the chi-square vector
-                        # See supplementary material for algorithm explanation
-                        mincov = min(covariance3)
-                        part1 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(0,covariance3[3]-mincov))
-                        part2 = c(rep(1,mincov), rep(1,covariance3[1]-mincov), rep(0,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
-                        part3 = c(rep(1,mincov), rep(0,covariance3[1]-mincov), rep(1,covariance3[2]-mincov), rep(1,covariance3[3]-mincov))
-                        ramainder1 = max(degree_freedom[1] - sum(part1), 0)
-                        ramainder2 = max(degree_freedom[2] - sum(part2), 0)
-                        ramainder3 = max(degree_freedom[3] - sum(part3), 0)
-                        Q1 = c(part1, rep(1, ramainder1), rep(0, ramainder2), rep(0, ramainder3))
-                        Q2 = c(part2, rep(0, ramainder1), rep(1, ramainder2), rep(0, ramainder3))
-                        Q3 = c(part3, rep(0, ramainder1), rep(0, ramainder2), rep(1, ramainder3))
-
-                        #chi-squared(1) sample
-                        bootstrap_sample = matrix((rnorm(length(Q1) * bs_size))^2, nrow = length(Q1), ncol = bs_size)
-                        chisq1 = colSums(Q1 * bootstrap_sample)
-                        chisq2 = colSums(Q2 * bootstrap_sample)
-                        chisq3 = colSums(Q3 * bootstrap_sample)
-                        T1sample = (1/p*constant.coef[1] * chisq1 - Theta1[1])/sqrt(2*Theta2[1]/p)
-                        T2sample = (1/p*constant.coef[2] * chisq2 - Theta1[2])/sqrt(2*Theta2[2]/p)
-                        T3sample = (1/p*constant.coef[3] * chisq3 - Theta1[3])/sqrt(2*Theta2[3]/p)
+                        chisq = r3chisq(size = bs_size, df = degree_freedom, correlation_mat = G_expand)$sample
+                        # standardize the bootstrap sample
+                        T1sample = (1/p*constant_coef[1] * chisq[,1] - Theta1[opt_lambda_index[1]])/sqrt(2*Theta2[opt_lambda_index[1]]/p)
+                        T2sample = (1/p*constant_coef[2] * chisq[,2] - Theta1[opt_lambda_index[2]])/sqrt(2*Theta2[opt_lambda_index[2]]/p)
+                        T3sample = (1/p*constant_coef[3] * chisq[,3] - Theta1[opt_lambda_index[3]])/sqrt(2*Theta2[opt_lambda_index[3]]/p)
                         Tmax = pmax(T1sample, T2sample, T3sample)
-
+                        p_value = 1 - pchisq( p * RHT / constant_coef[1:length(RHT)], df = degree_freedom[1:length(RHT)])
                         RHT_std = (RHT - Theta1[opt_lambda_index])/sqrt(2*Theta2[opt_lambda_index]/p)
-                        p_value = 1 - mean(max(RHT_std)>Tmax)
+                        composite_p_value = 1 - mean(max(RHT_std) > Tmax)
                 }
         }
+        return(list(ARHT_pvalue = composite_p_value,
+                    RHT_pvalue = p_value,
+                    RHT_std = RHT_std,
+                    RHT_opt_lambda = lambda[opt_lambda_index]))
 }
+
 

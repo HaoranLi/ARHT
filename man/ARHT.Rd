@@ -2,39 +2,53 @@
 % Please edit documentation in R/ARHT.R
 \name{ARHT}
 \alias{ARHT}
-\title{Adaptable Regularized Hotelling's T^2 test for one-sample testing problem}
+\title{Adaptable Regularized Hotelling's T^2 test for high-dimensional data}
 \usage{
-ARHT(X, Y = NULL, mu_0 = NULL, prob_alternative_prior = list(c(1, 0, 0),
-  c(0, 1, 0), c(0, 0, 1)), Type1error_calib = c("cube_root", "sqrt", "chi_sq",
-  "none"), lambda_range = NULL, nlambda = 2000, bs_size = 1e+06)
+ARHT(X, Y = NULL, mu_0 = NULL, prob_alt_prior = list(c(1, 0, 0), c(0, 1,
+  0), c(0, 0, 1)), Type1error_calib = c("cube_root", "sqrt", "chi_sq",
+  "none"), lambda_range = NULL, nlambda = 2000, bs_size = 1e+05)
 }
 \arguments{
 \item{X}{n-by-p observation matrix with  numeric column variables.}
 
-\item{mu_0}{the null hypothesis to be tested, default value is the 0 vector.}
+\item{Y}{optional; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test is conduct on \code{X} and \code{Y}}
 
-\item{prob_alternative_prior}{an umempty list with each field a numeric vector of length 3 with sum 1.
-Default value is list(c(1,0,0), c(0,1,0), c(0,0,1)).
-Each field of the list represents a probabilistic prior models specified by weights
-of $\Sigma^0$, $\Sigma^1$, $\Sigma^2$, etc.}
+\item{mu_0}{the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector}
+
+\item{prob_alt_prior}{an umempty list with each field a numeric vector with sum 1;
+default value is \code{list(c(1,0,0),c(0,1,0),c(0,0,1))};
+each field of the list represents a probabilistic prior models specified by weights
+of \eqn{\Sigma^0}, \eqn{\Sigma}, \eqn{\Sigma^2}, ... where \eqn{\Sigma} is the population covariance matrix}
 
 \item{Type1error_calib}{the method to calibrate Type 1 error rate of the test. Four values are allowed,
-cube_root (default, cube-root transformation),
-sqrt (square-root transformation),
-chi_sq (chi-square approximation),
-none (no calibration).}
+\itemize{
+                   \item{\code{cube_root}} the default value, cube-root transformation
+                   \item{\code{sqrt}} square-root transformation
+                   \item{\code{chi_sq}} chi-square approximationm, not available when more than 3 models are specified in \code{prob_alt_prior}
+                   \item{\code{none}} no calibration
+                   }}
 
-\item{lambda_range}{Optional user-supplied lambda sequence; default is NULL, and ARHT chooses
+\item{lambda_range}{Optional user-supplied lambda sequence; If \code{NULL}, and ARHT chooses
 its own sequence}
 
-\item{nlambda}{Optional user-supplied number of lambda's in grid search; Default is 2000; Must be postive numeric. The grid is progressively coarser.}
+\item{nlambda}{Optional; user-supplied number of lambda's in grid search; default to be 2000; the grid is progressively coarser}
 
-\item{bs_size}{a numeric scalar, default value 1e6, only available when more than one prior models are
-specified in prob_alternative_prior; control the size of bootstrap sample used to approximate p-values.}
+\item{bs_size}{positive numeric with default value 1e5; only available when more than one prior models are
+specified in \code{prob_alt_prior}; control the size of the bootstrap sample used to approximate p-values.}
 }
 \value{
-Tstat: a vector of the same length of prob_alternative_prior.
+\itemize{
+\item{\code{ARHT_pvalue}}: The p-value of ARHT test
+\item{\code{RHT_pvalue}}: The p-value of RHT test with the optimal lambda of each prior model in \code{prob_alt_prior}
+\item{\code{RHT_std}}: The standardized RHT statistics with the optimal lambda of each prior model in \code{prob_alt_prior}
+(the statistic of ARHT is its maxima)
+\item{\code{RHT_opt_lambda}}: The optimal lambda's of each prior model in \code{prob_alt_prior}}
 }
 \description{
-Adaptable Regularized Hotelling's T^2 test for one-sample testing problem
+Adaptable Regularized Hotelling's T^2 test for high-dimensional data
+}
+\examples{
+n = 300; p =500
+X = matrix(rnorm(n * p), nrow = n, ncol = p)
+ARHT(X)
 }

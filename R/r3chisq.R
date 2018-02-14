@@ -43,7 +43,7 @@ r3chisq = function(size, df, correlation_mat){
         if(!is.matrix(correlation_mat)){
                 correlation_mat = as.matrix(correlation_mat)
         }
-        if( any(correlation_mat != t(correlation_mat))){
+        if(!isSymmetric(correlation_mat)){
                 stop("correlation_mat must be symmetric")
         }
         correlation_mat = correlation_mat * (correlation_mat >= 0)
@@ -67,7 +67,7 @@ r3chisq = function(size, df, correlation_mat){
         Qs = cbind(Q1, Q2, Q3)
 
         #chi-squared(1) sample
-        bootstrap_sample = matrix((rnorm(length(Q1) * bs_size))^2, nrow = bs_size, ncol = length(Q1))
+        bootstrap_sample = matrix((rnorm(length(Q1) * size))^2, nrow = size, ncol = length(Q1))
         chisq = bootstrap_sample %*% Qs
         approx_cov = 2* matrix(c(sum(Q1), half_covariances[1], half_covariances[2],
                                  half_covariances[1], sum(Q2), half_covariances[3],
