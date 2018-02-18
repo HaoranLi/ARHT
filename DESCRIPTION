@@ -2,8 +2,12 @@ Package: ARHT
 Type: Package
 Title: Adaptable Regularized Hotelling's T^2 test for high-dimensional data
 Version: 0.1.0
-Authors@R: person("Haoran", "Li", email = "hrli@ucdavis.edu",
-                  role = c("aut", "cre"))
+Authors@R: c(person("Haoran", "Li", email = "hrli@ucdavis.edu",
+                  role = c("aut", "cre")), 
+             person("Alexander", "Aue", email = "aaue@ucdavis.edu",
+                  role = c("aut")),
+             person("Debashis", "Paul", email = "debpaul@ucdavis.edu",
+                  role = c("aut")))
 Maintainer: Haoran Li <hrli@ucdavis.edu>
 Description: Perform the Adaptable Regularized Hotelling's T^2 test (ARHT) proposed by Li et. al., arXiv:1609.08725. 
      Both one- and two- sample mean test are available with various probabilistic alternative prior models. 
