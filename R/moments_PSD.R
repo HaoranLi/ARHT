@@ -1,15 +1,28 @@
-#' A function to calculate consistent estimators of the moments of the limiting spectral distribution of the population covariance matrix
-#' given the spectral of the sample covariance matrix
+#' Consistent estimators of high-order moments of the population spectral distribution for high-dimenional data
+#' @description  The function calculates consistent estimators of moments of the spectral distribution
+#' of the population covariance matrix given the spectral of the sample covariance matrix.
 #' @keywords population spectral moments estimators
 #' @name moments_PSD
-#' @param emp_eig eigenvalues of the sample covariance matrix
-#' @param n degree of freedom
-#' @param degree the maximum order of the moments to calculate
-#' @return The first \code{mom_degree} number order of moments of the limiting spectral distribution of the population covariance matrix
-#' ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
-#' Australian & New Zealand Journal of Statistics.
-
-
+#' @param eigenvalues all eigenvalues of the sample covariance matrix including 0's.
+#' @param n degree of freedom of the sample covariance matrix.
+#' @param mom_degree the maximum order of moments.
+#' @return Estimators of moments from the first to the \code{mom_degree}-th order.
+#' @references  Bai, Z., Chen, J., & Yao, J. (2010).
+#'\emph{On estimation of the population spectral distribution from a high‐dimensional sample covariance matrix.}
+#'Australian & New Zealand Journal of Statistics, 52(4), 423-437.
+#' @examples
+#' set.seed(10086)
+#' n = 400; p= 500
+#' pop_eig = seq(10,1,length = p)
+#' # Data with covariance matrix diag(pop_eig)
+#' X = matrix(rnorm(n * p), n, p) %*% diag(sqrt(pop_eig))
+#' raw_eig = svd(cov(X))$d
+#' emp_eig = raw_eig[raw_eig>=0]
+#' # Moments of population spectral distribution
+#' colMeans(outer(pop_eig, 1:4, "^"))
+#' # Estimators
+#' moments_PSD(emp_eig, n-1, 4)
+#' @export
 moments_PSD = function( eigenvalues,
                         n,
                         mom_degree){

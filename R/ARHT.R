@@ -1,34 +1,75 @@
-#' Adaptable Regularized Hotelling's T^2 test for high-dimensional data
-#' @param X n-by-p observation matrix with  numeric column variables.
-#' @param Y optional; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test is conduct on \code{X} and \code{Y}
-#' @param mu_0 the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector
-#' @param prob_alt_prior an umempty list with each field a numeric vector with sum 1;
-#'                          default value is \code{list(c(1,0,0),c(0,1,0),c(0,0,1))};
-#'                          each field of the list represents a probabilistic prior models specified by weights
-#'                          of \eqn{\Sigma^0}, \eqn{\Sigma}, \eqn{\Sigma^2}, ... where \eqn{\Sigma} is the population covariance matrix
-#' @param Type1error_calib the method to calibrate Type 1 error rate of the test. Four values are allowed,
-#' \itemize{
-#'                    \item{\code{cube_root}} the default value, cube-root transformation
-#'                    \item{\code{sqrt}} square-root transformation
-#'                    \item{\code{chi_sq}} chi-square approximationm, not available when more than 3 models are specified in \code{prob_alt_prior}
-#'                    \item{\code{none}} no calibration
-#'                    }
-#' @param lambda_range Optional user-supplied lambda sequence; If \code{NULL}, and ARHT chooses
-#'    its own sequence
-#' @param nlambda  Optional; user-supplied number of lambda's in grid search; default to be 2000; the grid is progressively coarser
+#' An adaptable regularized Hotelling's \eqn{T^2} test for high dimensional data
+#' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et. al., 2016) for the one- and two- sample mean test problems, where
+#' we're interested in detecting the mean vector in the one-sample problem or the difference between mean vectors
+#' in the two-sample problem in a high dimensional regime.
 #'
-#' @param bs_size positive numeric with default value 1e5; only available when more than one prior models are
-#'           specified in \code{prob_alt_prior}; control the size of the bootstrap sample used to approximate p-values.
+#' @details The method incorporates ridge-regularization in the classic
+#' Hotelling's \eqn{T^2} test with the regularization parameter chosen such that the power under a class of probabilistic
+#' alternatives prior models is maximized. ARHT then combines the results from different prior models by taking the maximum
+#' of statistics under all models. Its p-value is bootstrapped, therefore not deterministic. Various methods are available to calibrate Type-1 error rate of the ARHT, including Cube-root
+#' transformation, square-root transformation and chi-squared approximation.
+#' @param X the n1-by-p observation matrix with numeric column variables.
+#' @param Y an optional n2-by-p observation matrix; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test is conducted on \code{X} and \code{Y}.
+#' @param mu_0 the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector of length p.
+#' @param prob_alt_prior an umempty list with each field a numeric vector summed to be \code{1};
+#'                          the default value is the "canonical weights" \code{list(c(1,0,0),c(0,1,0),c(0,0,1))};
+#'                          each field of the list represents a probabilistic prior model specified by weights
+#'                          of \eqn{I_p}, \eqn{\Sigma}, \eqn{\Sigma^2},..., where \eqn{\Sigma} is the population covariance matrix.
+#' @param Type1error_calib the method to calibrate Type 1 error rate of the test. Only its first element will be chosen when more than one are specified. Four values are allowed,
+#' \itemize{\item{\code{cube_root}} The default value, cube-root transformation;
+#'          \item{\code{sqrt}} Square-root transformation;
+#'          \item{\code{chi_sq}} Chi-squared approximationm, not available when more than three models are specified in \code{prob_alt_prior};
+#'          \item{\code{none}} No calibration}.
+#'
+#' @param lambda_range optional user-supplied lambda range; If \code{NULL}, and ARHT chooses its own range.
+#' @param nlambda  optional user-supplied number of lambda's in grid search; default to be \code{2000}; the grid is progressively coarser.
+#'
+#' @param bs_size positive numeric with default value \code{1e5}; only effective when more than one prior models are
+#'           specified in \code{prob_alt_prior}; control the size of the bootstrap sample used to approximate ARHT p-values.
+#' @references Li, H., Aue, A., Paul, D., Peng, J., & Wang, P. (2016). \emph{
+#' An adaptable generalization of Hotelling's  \eqn{T^2}
+#'  test in high dimension.} arXiv preprint arXiv:1609.08725.
+#' @references Chen, L. S., Paul, D., Prentice, R. L., & Wang, P. (2011).
+#' \emph{A regularized Hotelling’s T 2 test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
+#'
 #' @return \itemize{
-#' \item{\code{ARHT_pvalue}}: The p-value of ARHT test
-#' \item{\code{RHT_pvalue}}: The p-value of RHT test with the optimal lambda of each prior model in \code{prob_alt_prior}
-#' \item{\code{RHT_std}}: The standardized RHT statistics with the optimal lambda of each prior model in \code{prob_alt_prior}
-#' (the statistic of ARHT is its maxima)
-#' \item{\code{RHT_opt_lambda}}: The optimal lambda's of each prior model in \code{prob_alt_prior}}
+#' \item{\code{ARHT_pvalue}}: The p-value of ARHT test.
+#' \itemize{ \item If \code{length(prob_alt_prior)=1}, it is identical to RHT_pvalue.
+#' \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models specified in
+#' \code{prob_alt_prior}.  The value is bootstrapped, therefore not deterministic.}
+#' \item{\code{RHT_opt_lambda}}: The optimal lambda's chosen under each of the prior models in \code{prob_alt_prior}. It has the same length and order as \code{prob_alt_prior}.
+#' \item{\code{RHT_pvalue}}: The p-values of RHT tests with the lambda's in \code{RHT_opt_lambda}
+#' \item{\code{RHT_std}}: The standardized RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+#' Take its maximum to get the statistic of ARHT test.
+#' \item{\code{Theta1}}: As defined in Li et. al. (2016), the estimated asymptotic means of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+#' \item{\code{Theta2}}: As defined in Li et. al. (2016), \code{2*Theta2} are the estimated asymptotic variances of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+#' \item{\code{Corr_RHT}}: The estimated correlation matrix of the statistics in \code{RHT_std}.
+#' }
 #' @examples
-#' n = 300; p =500
-#' X = matrix(rnorm(n * p), nrow = n, ncol = p)
-#' ARHT(X)
+#' set.seed(10086)
+#' # One-sample test
+#' n1 = 300; p =500
+#' dataX = matrix(rnorm(n1 * p), nrow = n1, ncol = p)
+#' res1 = ARHT(dataX)
+#'
+#' # Two-sample test
+#' n2= 400
+#' dataY = matrix(rnorm(n2 * p), nrow = n2, ncol = p )
+#' res2 = ARHT(dataX, dataY, mu_0 = rep(0.01,p))
+#'
+#' # Specify probabilistic alternative priors model
+#' res3 = ARHT(dataX, dataY, mu_0 = rep(0.01,p),
+#'      prob_alt_prior = list(c(1/3, 1/3, 1/3), c(0,1,0)))
+#'
+#' # Change Type 1 error calibration method
+#' res4 = ARHT(dataX, dataY, mu_0 = rep(0.01,p),
+#'      Type1error_calib = "sqrt")
+#'
+#' RejectOrNot = res4$ARHT_pvalue < 0.05
+#'
+#' @export
+#' @import stats
+
 ARHT = function(X,
                 Y = NULL,
                 mu_0 = NULL,
@@ -77,7 +118,7 @@ ARHT = function(X,
         if(!all(sapply(prob_alt_prior, is.vector, mode = "numeric")))
                 stop("prob_alt_prior must be a list of numeric vectors")
 
-        valid_prob_alt_prior = sapply(prob_alt_prior, function(a){sum(a) != 1})
+        valid_prob_alt_prior = sapply(prob_alt_prior, function(a){ round(sum(a), 5) != 1})
         if(any(valid_prob_alt_prior)){
                 stop(paste("In Model", paste( which(valid_prob_alt_prior), collapse = ", "),
                            "specified in prob_alt_prior, the sum of prior weights is not 1"))
@@ -110,7 +151,7 @@ ARHT = function(X,
                 warning('Unknown value for Type1error_calib; default value "cube_root" is chosen instead')
         }
         if( (length(prob_alt_prior) >3L) && (Type1error_calib[1] == "chi_sq")){
-                stop("Chi-square calibration of Type 1 error is not available when the number of prior models
+                stop("Chi-square calibration of Type 1 error is not available when the number of prior models in prob_alt_prior
                      is larger than 3")
         }
         if(length(prob_alt_prior)>1L ){
@@ -119,7 +160,7 @@ ARHT = function(X,
                 if(bs_size <=0 )
                         stop("bs_size must be postive")
                 if(bs_size < 1e3)
-                        warning("Bootstrap sample size is too small; estimated p-value is not reliable.")
+                        warning("Bootstrap sample size is too small; ARHT_pvalue is not reliable.")
         }
         bs_size = ceiling(bs_size)
 
@@ -127,7 +168,6 @@ ARHT = function(X,
                 bootstrap_sample = matrix(rnorm(length(prob_alt_prior)*bs_size),
                                           ncol = bs_size)
         }
-
 
         if(mode == "one_sample"){
                 eig_proj = eigen_proj_1samp(X, mu_0, lower_lambda = lambda_range[1])
@@ -139,12 +179,6 @@ ARHT = function(X,
         gamma = p/n
         proj_diff = eig_proj$proj_shift
         ridge = eig_proj$lower_lambda
-
-#        testp <<- p
-#        testn <<- n
-#       testgamma <<- p/n
-#        testproj_diff<<- proj_diff
-
 
         # To speed up the computation of Stieltjes transform, separate positive eigenvalues and negative ones.
         positive_emp_eig = eig_proj$pos_eig_val
@@ -162,23 +196,15 @@ ARHT = function(X,
                                  length = nlambda))
         }
 
-#        lambda <<- lambda
-
         ## Stieltjes transform, its derivative, Theta_1, Theta_2
         mF = 1/p * ( rowSums(1/outer(lambda, positive_emp_eig, FUN = "+"))
                      + num_zero_emp_eig/lambda )
-
-#        testmF <<-mF
 
         mFprime = 1/p * (rowSums(1/(outer(lambda, positive_emp_eig, FUN = "+"))^2)
                          + num_zero_emp_eig/lambda^2)
         Theta1 = (1 - lambda*mF)/(1 - gamma*(1 - lambda * mF))
 
-#        testTheta1 <<- Theta1
-
         Theta2 = (1 + gamma*Theta1)^2 * (Theta1 - lambda *(mF - lambda * mFprime)/(1 - gamma*(1 - lambda * mF))^2)
-
-#        testTheta2 <<- Theta2
 
         # Calculate the power under each prior model
         prior_max_order = max(sapply(prob_alt_prior,length))
@@ -188,7 +214,6 @@ ARHT = function(X,
                 rhos = rbind(mF, Theta1)
         }else{
                 pop_moments = moments_PSD(emp_eig, n, prior_max_order-2)
-                testpop_moments <<- pop_moments
                 rhos = matrix(NA, nrow = prior_max_order, ncol = length(mF))
                 rhos[1, ] = mF
                 rhos[2, ] = Theta1
@@ -198,12 +223,8 @@ ARHT = function(X,
                 }
         }
         powers = t(matrix_prob_alt_prior %*% rhos) / sqrt(2*gamma*Theta2) # Column: prior model; Row: lambda
-#        testrhos <<- rhos
-#        testpowers<<- powers
 
         opt_lambda_index = apply(powers, 2, which.max) # optimal lambda index under each prior model
-
-#        test_opt_lambda_index <<- opt_lambda_index
 
         ## Estimated covariance matrix of standardized RHT statistics with optimal lambda's
         G = matrix( apply( expand.grid(opt_lambda_index, opt_lambda_index), 1,
@@ -228,15 +249,10 @@ ARHT = function(X,
         G_eval_plus = G_eval * (G_eval >= 0)
         G_sqrt = G_evec %*% diag(sqrt(G_eval_plus))
 
-#        testG_sqrt <<- G_sqrt
-
         # standardized statistics
         RHT = sapply(lambda[opt_lambda_index], function(xx){
                 (1/p) * sum( proj_diff^2 / (emp_eig + xx))}
         )
- #       testRHT <<- RHT
-
-
         if(Type1error_calib[1] != "chi_sq"){
                 if(Type1error_calib[1] == "cube_root"){
                         RHT_std = {sqrt(p) * ( RHT^(1/3) - (Theta1[opt_lambda_index])^(1/3)) /
@@ -260,8 +276,6 @@ ARHT = function(X,
                 }
         }
 
-#        testRHT_std <<- RHT_std
-
         if(Type1error_calib[1] == "chi_sq"){
                 if(length(prob_alt_prior) == 1L){
                         # when one prior model is specified, no need for bootstrap
@@ -284,7 +298,7 @@ ARHT = function(X,
                         # Call r3chisq to get the generated 3-vairate chi-square bootstrap sample
                         constant_coef = Theta2[length3_opt_lambda_index] / Theta1[length3_opt_lambda_index]
                         degree_freedom = ceiling( p * (Theta1[length3_opt_lambda_index])^2 / Theta2[length3_opt_lambda_index])
-                        chisq = r3chisq(size = bs_size, df = degree_freedom, correlation_mat = G_expand)$sample
+                        chisq = r3chisq(size = bs_size, df = degree_freedom, corr_mat = G_expand)$sample
                         # standardize the bootstrap sample
                         T1sample = (1/p*constant_coef[1] * chisq[,1] - Theta1[opt_lambda_index[1]])/sqrt(2*Theta2[opt_lambda_index[1]]/p)
                         T2sample = (1/p*constant_coef[2] * chisq[,2] - Theta1[opt_lambda_index[2]])/sqrt(2*Theta2[opt_lambda_index[2]]/p)
@@ -298,7 +312,11 @@ ARHT = function(X,
         return(list(ARHT_pvalue = composite_p_value,
                     RHT_pvalue = p_value,
                     RHT_std = RHT_std,
-                    RHT_opt_lambda = lambda[opt_lambda_index]))
+                    RHT_opt_lambda = lambda[opt_lambda_index],
+                    Theta1 = Theta1[opt_lambda_index],
+                    Theta2 = Theta2[opt_lambda_index],
+                    Corr_RHT = G
+                    ))
 }
 
 

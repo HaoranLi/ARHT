@@ -2,26 +2,41 @@
 % Please edit documentation in R/moments_PSD.R
 \name{moments_PSD}
 \alias{moments_PSD}
-\title{A function to calculate consistent estimators of the moments of the limiting spectral distribution of the population covariance matrix
-given the spectral of the sample covariance matrix}
+\title{Consistent estimators of high-order moments of the population spectral distribution for high-dimenional data}
 \usage{
 moments_PSD(eigenvalues, n, mom_degree)
 }
 \arguments{
-\item{n}{degree of freedom}
+\item{eigenvalues}{all eigenvalues of the sample covariance matrix including 0's.}
 
-\item{emp_eig}{eigenvalues of the sample covariance matrix}
+\item{n}{degree of freedom of the sample covariance matrix.}
 
-\item{degree}{the maximum order of the moments to calculate}
+\item{mom_degree}{the maximum order of moments.}
 }
 \value{
-The first \code{mom_degree} number order of moments of the limiting spectral distribution of the population covariance matrix
-ON ESTIMATION OF THE POPULATION SPECTRAL DISTRIBUTIONFROM A HIGH-DIMENSIONAL SAMPLE COVARIANCE MATRIX
-Australian & New Zealand Journal of Statistics.
+Estimators of moments from the first to the \code{mom_degree}-th order.
 }
 \description{
-A function to calculate consistent estimators of the moments of the limiting spectral distribution of the population covariance matrix
-given the spectral of the sample covariance matrix
+The function calculates consistent estimators of moments of the spectral distribution
+of the population covariance matrix given the spectral of the sample covariance matrix.
+}
+\examples{
+set.seed(10086)
+n = 400; p= 500
+pop_eig = seq(10,1,length = p)
+# Data with covariance matrix diag(pop_eig)
+X = matrix(rnorm(n * p), n, p) \%*\% diag(sqrt(pop_eig))
+raw_eig = svd(cov(X))$d
+emp_eig = raw_eig[raw_eig>=0]
+# Moments of population spectral distribution
+colMeans(outer(pop_eig, 1:4, "^"))
+# Estimators
+moments_PSD(emp_eig, n-1, 4)
+}
+\references{
+Bai, Z., Chen, J., & Yao, J. (2010).
+\emph{On estimation of the population spectral distribution from a high‐dimensional sample covariance matrix.}
+Australian & New Zealand Journal of Statistics, 52(4), 423-437.
 }
 \keyword{estimators}
 \keyword{moments}

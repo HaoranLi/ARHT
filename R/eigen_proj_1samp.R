@@ -1,21 +1,34 @@
-#' An internal function for ARHT
+#' An internal function
 #' @name eigen_proj_1samp
 #' @keywords internal
-#' @description The function takes X and mu_0 as input, and returns positive eigenvalues of the sample covariance matrix,
-#'              and the scaled projection of the distance between the sample mean and mu_0, that is,
-#'              \deqn{n^{1/2} P^T (\bar{X} - mu_0)}
-#'              where $P$ is the eigenvector matrix of the sample covariance matrix. The function is designed to handle the situation when
-#'              the algorithm of singular value decomposition of the sample covariance fails to converge, by adding ridge-term to
-#'              stablize the algorithm.
-#' @param X X matrix as in ARHT
-#' @param mu_0 mu_0 as in ARHT
-#' @param lower_lambda the lower bound of lambda sequence, that is lambda_range[1] as in ARHT if specified; otherwise NULL
-#' @return A list of
-#' \itemize{\item{\code{n}}: degree of freedom, that is the sample size minus 1
-#'          \item{\code{pos_eig_val}}: the eigenvalue of the sample covariance matrix
-#'          \item{\code{proj_shift}}: the scaled projection of the distance between the sample mean and mu_0; see description
-#'          \item{\code{lower_bound}}: If lower_lambda specified, lower_bound returns its value; if not, returns the generated lower bound of lambda sequence
+#' @description This is an internal function for \code{ARHT}, computing summary statistics for the one-sample mean test problem.
+#'  The function returns positive eigenvalues of the sample covariance matrix,
+#'  and the scaled projection onto the eigenspace of the sample covariance matrix of the distance between the sample
+#'   mean \eqn{\bar{X}} and \code{mu_0}, that is,
+#'   \deqn{n^{1/2} P^T (\bar{X} - mu_0),}
+#'  where \eqn{P} is the eigenvector matrix of the sample covariance matrix.
+#'  The function is designed to handle the situation when
+#'  singular value algorithm in \code{svd()} does not converge, by adding ridge regularization term to
+#'  the sample covariance matrix.
+#' @param X \code{X} as in \code{\link{ARHT}}.
+#' @param mu_0 \code{mu_0} as in \code{\link{ARHT}}.
+#' @param lower_lambda the lower bound of the lambda sequence, that is \code{lambda_range[1]} as in \code{\link{ARHT}} if specified;
+#'  otherwise \code{NULL}.
+#' @seealso \code{\link{ARHT}}, \code{\link{eigen_proj_2samp}}
+#' @return
+#' \itemize{\item{\code{n}}: degree of freedom of the sample covariance matrix.
+#'          \item{\code{pos_eig_val}}: positive eigenvalues of the sample covariance matrix.
+#'          \item{\code{proj_shift}}: the scaled projection of the distance between the sample mean and \code{mu_0}; see Description.
+#'          \item{\code{lower_bound}}: If \code{lower_lambda} specified, returns its value; if not,
+#'          returns the generated lower bound of the lambda sequence.
 #'}
+#'@examples
+#' set.seed(10086)
+#' # One-sample test
+#' n1 = 300; p = 500
+#' X = matrix(rnorm(n1 *p), nrow = n1, ncol = p )
+#' eigen_proj_1samp(X, rep(0.01, times = p))
+#' @export
 eigen_proj_1samp = function(X,
                             mu_0,
                             lower_lambda = NULL){
@@ -56,12 +69,12 @@ eigen_proj_1samp = function(X,
                 emp_evec = svdofS_ridge$u
                 # To speed up the computation of Stieltjes transform, separate positive eigenvalues and negative ones.
                 emp_eig  = (svdofS_ridge$d - ridge) * (svdofS_ridge$d >= ridge)
-                positive_emp_eig = emp_eig[emp_eig > (1e-10) * mean(emp_eig)]
+                positive_emp_eig = emp_eig[emp_eig > (1e-8) * mean(emp_eig)]
                 #num_zero_emp_eig = p - length(positive_emp_eig) # number of 0 eigenvalues
         }else{
                 emp_evec = svd_half_S$u
                 eig_raw = svd_half_S$d^2
-                positive_emp_eig = eig_raw[eig_raw > (1e-10) * mean(eig_raw)]
+                positive_emp_eig = eig_raw[eig_raw > (1e-8 ) * mean(eig_raw)]
                 num_zero_emp_eig = p - length(positive_emp_eig)
                 emp_eig = c(positive_emp_eig, rep(0, times = num_zero_emp_eig))
                 if(!is.null(lower_lambda)){
@@ -70,8 +83,6 @@ eigen_proj_1samp = function(X,
                         ridge =  (mean(emp_eig)/100)
                 }
         }
-        testemp_evec <<- emp_evec
-        testX_bar <<- X_bar - mu_0
         proj = as.vector(sqrt(N) * t(emp_evec) %*% (X_bar - mu_0))
         return(list(n = nn, pos_eig_val = positive_emp_eig, proj_shift = proj, lower_lambda = ridge))
 }

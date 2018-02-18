@@ -2,34 +2,47 @@
 % Please edit documentation in R/r3chisq.R
 \name{r3chisq}
 \alias{r3chisq}
-\title{3-variate positively correlated chi-squared distribution generation when the degrees of freedom are large}
+\title{3-variate positively correlated chi-squared sample generation when degrees of freedom are large}
 \usage{
-r3chisq(size, df, correlation_mat)
+r3chisq(size, df, corr_mat)
 }
 \arguments{
-\item{size}{sample size}
+\item{size}{sample size.}
 
-\item{df}{the degree of freedoms \eqn{(d_1, d_2, d_3)} (non-negative, but can be non-integer, \code{ceiling(df)} is employed if non-integer)}
+\item{df}{the degree of freedoms of the marginal distributions. Must be non-negative, but can be non-integer.
+The function uses \code{ceiling(df)} if non-integer.}
 
-\item{correlation_mat}{the desired correlation matrix; negative elements will be set to 0}
+\item{corr_mat}{the target correlation matrix; negative elements will be set to 0.}
 }
 \value{
-A list of
 \itemize{
-\item{sample}: a n-by-3 matrix contains the generated sample of size n
-\item{approx_cov}: the true covariance matrix of the returned sample}
-Example: cor_mat = matrix(c(1, 1/6,2/3, 1/6, 1, 2/3, 2/3, 2/3, 1),3,3)
-example1 = r3chisq(size = 10000, df =c(80,90,100), correlation_mat = cor_mat )
-cov(example1$sample) - example1$approx_cov
-cov2cor(example1$approx_cov) - cor_mat
+\item{\code{sample}}: a \code{size}-by-3 matrix contains the generated sample.
+\item{\code{approx_cov}}: the true covariance matrix of \code{sample}.}
 }
 \description{
-Generate samples approximately from three positively correlated chi-square random variables \eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))}
- when the degrees of freedoms \eqn{(d_1, d_2, d_3)} are large
+Generate samples approximately from three positively correlated chi-squared random variables
+\eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))}
+when the degrees of freedom \eqn{(d_1, d_2, d_3)} are large.
 }
 \details{
-It is generally hard to sample from \eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))} with a designed correlation matrix. In the alogrithm, we approximate
-the random vector by \eqn{(z^T Q_1 z, z^T Q_2 z, z^T Q_3 z)} where \eqn{z} is a standard norm random vector and \eqn{Q_1,Q_2,Q_3} are diagonal matrices
-with diagonal elements 1's and 0's. We approximate the designed positive correlations by carafully selecting common locations of 1's on the diagonals.
-The generated sample may have slightly different marginal degrees of freedoms from the inputted \code{df}, also covariances.
+It is generally hard to sample from \eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))} with a designed correlation matrix.
+ In the algorithm, we approximate the random vector by \eqn{(z^T Q_1 z, z^T Q_2 z, z^T Q_3 z)}
+ where \eqn{z} is a standard norm random vector and \eqn{Q_1,Q_2,Q_3} are diagonal matrices
+with diagonal elements 1's and 0's. The designed positive correlations is approximated by carafully
+ selecting common locations of 1's on the diagonals. The generated sample may have slightly larger marginal degrees
+ of freedom than the inputted \code{df}, also slightly different covariances.
+}
+\examples{
+set.seed(10086)
+cor_examp = matrix(c(1,1/6,2/3,1/6,1,2/3,2/3,2/3,1),3,3)
+a_sam = r3chisq(size = 10000,
+                df = c(80,90,100),
+                corr_mat = cor_examp)
+cov(a_sam$sample) - a_sam$approx_cov
+cov2cor(a_sam$approx_cov) - cor_examp
+}
+\references{
+Li, H., Aue, A., Paul, D., Peng, J., & Wang, P. (2016). \emph{
+An adaptable generalization of Hotelling's  \eqn{T^2}
+ test in high dimension.} arXiv preprint arXiv:1609.08725.
 }
