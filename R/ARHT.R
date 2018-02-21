@@ -1,6 +1,6 @@
 #' An adaptable regularized Hotelling's \eqn{T^2} test for high dimensional data
 #' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et. al., 2016) for the one- and two- sample mean test problems, where
-#' we're interested in detecting the mean vector in the one-sample problem or the difference between mean vectors
+#' we're interested in detecting the mean vector in the one- sample problem or the difference between mean vectors
 #' in the two-sample problem in a high dimensional regime.
 #'
 #' @details The method incorporates ridge-regularization in the classic
@@ -30,7 +30,7 @@
 #' An adaptable generalization of Hotelling's  \eqn{T^2}
 #'  test in high dimension.} arXiv preprint arXiv:1609.08725.
 #' @references Chen, L. S., Paul, D., Prentice, R. L., & Wang, P. (2011).
-#' \emph{A regularized Hotelling’s T 2 test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
+#' \emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
 #'
 #' @return \itemize{
 #' \item{\code{ARHT_pvalue}}: The p-value of ARHT test.

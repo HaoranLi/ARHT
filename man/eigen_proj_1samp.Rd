@@ -23,7 +23,7 @@ otherwise \code{NULL}.}
 }
 }
 \description{
-This is an internal function for \code{ARHT}, computing summary statistics for the one-sample mean test problem.
+This is an internal function for \code{ARHT}, computing summary statistics for the one- sample mean test problem.
  The function returns positive eigenvalues of the sample covariance matrix,
  and the scaled projection onto the eigenspace of the sample covariance matrix of the distance between the sample
   mean \eqn{\bar{X}} and \code{mu_0}, that is,
