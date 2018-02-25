@@ -8,14 +8,14 @@
 #' @param mom_degree the maximum order of moments.
 #' @return Estimators of moments from the first to the \code{mom_degree}-th order.
 #' @references  Bai, Z., Chen, J., & Yao, J. (2010).
-#'\emph{On estimation of the population spectral distribution from a high‐dimensional sample covariance matrix.}
-#'Australian & New Zealand Journal of Statistics, 52(4), 423-437.
+#'\emph{On estimation of the population spectral distribution from a high-dimensional sample covariance matrix.}
+#' Australian & New Zealand Journal of Statistics, 52(4), 423-437.
 #' @examples
 #' set.seed(10086)
 #' n = 400; p= 500
 #' pop_eig = seq(10,1,length = p)
 #' # Data with covariance matrix diag(pop_eig)
-#' X = matrix(rnorm(n * p), n, p) %*% diag(sqrt(pop_eig))
+#' X=matrix(rnorm(n*p),n,p)%*%diag(sqrt(pop_eig))
 #' raw_eig = svd(cov(X))$d
 #' emp_eig = raw_eig[raw_eig>=0]
 #' # Moments of population spectral distribution

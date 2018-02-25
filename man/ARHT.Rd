@@ -49,15 +49,15 @@ Take its maximum to get the statistic of ARHT test.
 }
 }
 \description{
-This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et. al., 2016) for the one-  and two-  sample mean test problems, where
+This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et. al., 2016) for the one- and two- sample mean test problems, where
 we're interested in detecting the mean vector in the one- sample problem or the difference between mean vectors
-in the two-  sample problem in a high dimensional regime.
+in the two-sample problem in a high dimensional regime.
 }
 \details{
 The method incorporates ridge-regularization in the classic
 Hotelling's \eqn{T^2} test with the regularization parameter chosen such that the power under a class of probabilistic
 alternatives prior models is maximized. ARHT then combines the results from different prior models by taking the maximum
-of statistics under all models. Its p- value is bootstrapped, therefore not deterministic. Various methods are available to calibrate Type-1 error rate of the ARHT, including Cube-root
+of statistics under all models. Its p-value is bootstrapped, therefore not deterministic. Various methods are available to calibrate Type-1 error rate of the ARHT, including Cube-root
 transformation, square-root transformation and chi-squared approximation.
 }
 \examples{
@@ -89,5 +89,5 @@ An adaptable generalization of Hotelling's  \eqn{T^2}
  test in high dimension.} arXiv preprint arXiv:1609.08725.
 
 Chen, L. S., Paul, D., Prentice, R. L., & Wang, P. (2011).
-\emph{A regularized Hotelling’s T 2 test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
+\emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
 }

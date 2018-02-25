@@ -37,7 +37,7 @@ This is an internal function for \code{ARHT}, computing summary statistics for t
 set.seed(10086)
 # One-sample test
 n1 = 300; p = 500
-X = matrix(rnorm(n1 *p), nrow = n1, ncol = p )
+X = matrix(rnorm(n1 * p), nrow = n1, ncol = p )
 eigen_proj_1samp(X, rep(0.01, times = p))
 }
 \seealso{
