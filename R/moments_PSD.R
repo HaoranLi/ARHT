@@ -6,7 +6,7 @@
 #' @param eigenvalues all eigenvalues of the sample covariance matrix including 0's.
 #' @param n degree of freedom of the sample covariance matrix.
 #' @param mom_degree the maximum order of moments.
-#' @return Estimators of moments from the first to the \code{mom_degree}-th order.
+#' @return Estimators of moments from the first to the \code{mom_degree} -th order.
 #' @references  Bai, Z., Chen, J., & Yao, J. (2010).
 #'\emph{On estimation of the population spectral distribution from a high-dimensional sample covariance matrix.}
 #' Australian & New Zealand Journal of Statistics, 52(4), 423-437.

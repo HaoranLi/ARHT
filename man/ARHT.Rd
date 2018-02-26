@@ -2,7 +2,7 @@
 % Please edit documentation in R/ARHT.R
 \name{ARHT}
 \alias{ARHT}
-\title{An adaptable regularized Hotelling's \eqn{T^2} test for high dimensional data}
+\title{An adaptable generalized Hotelling's \eqn{T^2} test for high dimensional data}
 \usage{
 ARHT(X, Y = NULL, mu_0 = NULL, prob_alt_prior = list(c(1, 0, 0), c(0, 1,
   0), c(0, 0, 1)), Type1error_calib = c("cube_root", "sqrt", "chi_sq",
@@ -11,54 +11,61 @@ ARHT(X, Y = NULL, mu_0 = NULL, prob_alt_prior = list(c(1, 0, 0), c(0, 1,
 \arguments{
 \item{X}{the n1-by-p observation matrix with numeric column variables.}
 
-\item{Y}{an optional n2-by-p observation matrix; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test is conducted on \code{X} and \code{Y}.}
+\item{Y}{an optional n2-by-p observation matrix; if \code{NULL}, a one-sample test is conducted on \code{X}; otherwise, a two-sample test
+is conducted on \code{X} and \code{Y}.}
 
 \item{mu_0}{the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector of length p.}
 
-\item{prob_alt_prior}{an umempty list with each field a numeric vector summed to be \code{1};
-the default value is the "canonical weights" \code{list(c(1,0,0),c(0,1,0),c(0,0,1))};
-each field of the list represents a probabilistic prior model specified by weights
-of \eqn{I_p}, \eqn{\Sigma}, \eqn{\Sigma^2},..., where \eqn{\Sigma} is the population covariance matrix.}
+\item{prob_alt_prior}{an unempty list; Each field is a numeric vector with sum 1. The default value is the "canonical weights"
+\code{list(c(1,0,0), c(0,1,0), c(0,0,1))}; Each field represents a probabilistic prior model specified by weights of \eqn{I_p},
+\eqn{\Sigma}, \eqn{\Sigma^2}, etc, where \eqn{\Sigma} is the population covariance matrix of the observations.}
 
-\item{Type1error_calib}{the method to calibrate Type 1 error rate of the test. Only its first element will be chosen when more than one are specified. Four values are allowed,
-\itemize{\item{\code{cube_root}} The default value, cube-root transformation;
-         \item{\code{sqrt}} Square-root transformation;
-         \item{\code{chi_sq}} Chi-squared approximationm, not available when more than three models are specified in \code{prob_alt_prior};
-         \item{\code{none}} No calibration}.}
+\item{Type1error_calib}{the method to calibrate Type 1 error rate of ARHT. Choose its first element when more than one are specified.
+       Four values are allowed:
+       \itemize{\item{\code{cube_root}} The default value; cube-root transformation;
+                \item{\code{sqrt}} Square-root transformation;
+                \item{\code{chi_sq}} Chi-square approximation, not available when more than three models are specified in \code{prob_alt_prior};
+                \item{\code{none}} No calibration.
+}}
 
-\item{lambda_range}{optional user-supplied lambda range; If \code{NULL}, and ARHT chooses its own range.}
+\item{lambda_range}{optional user-supplied lambda range; If \code{NULL}, ARHT chooses its own range.}
 
 \item{nlambda}{optional user-supplied number of lambda's in grid search; default to be \code{2000}; the grid is progressively coarser.}
 
-\item{bs_size}{positive numeric with default value \code{1e5}; only effective when more than one prior models are
-specified in \code{prob_alt_prior}; control the size of the bootstrap sample used to approximate ARHT p-values.}
+\item{bs_size}{positive numeric with default value \code{1e5}; only effective when more than one prior models are specified in \code{prob_alt_prior};
+control the size of the bootstrap sample used to approximate the ARHT p-value.}
 }
 \value{
 \itemize{
-\item{\code{ARHT_pvalue}}: The p-value of ARHT test.
-\itemize{ \item If \code{length(prob_alt_prior)=1}, it is identical to RHT_pvalue.
-\item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models specified in
-\code{prob_alt_prior}.  The value is bootstrapped, therefore not deterministic.}
-\item{\code{RHT_opt_lambda}}: The optimal lambda's chosen under each of the prior models in \code{prob_alt_prior}. It has the same length and order as \code{prob_alt_prior}.
-\item{\code{RHT_pvalue}}: The p-values of RHT tests with the lambda's in \code{RHT_opt_lambda}
-\item{\code{RHT_std}}: The standardized RHT statistics with the lambda's in \code{RHT_opt_lambda}.
-Take its maximum to get the statistic of ARHT test.
-\item{\code{Theta1}}: As defined in Li et. al. (2016), the estimated asymptotic means of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
-\item{\code{Theta2}}: As defined in Li et. al. (2016), \code{2*Theta2} are the estimated asymptotic variances of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
-\item{\code{Corr_RHT}}: The estimated correlation matrix of the statistics in \code{RHT_std}.
+ \item{\code{ARHT_pvalue}}: The p-value of ARHT test.
+                            \itemize{
+                             \item If \code{length(prob_alt_prior)==1}, it is identical to RHT_pvalue.
+                             \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models. The vaule is
+                                   bootstrapped, therefore not deterministic.
+                             }
+ \item{\code{RHT_opt_lambda}}: The optimal lambda's chosen under each of the prior models in \code{prob_alt_prior}. It has the same length and order as
+                             \code{prob_alt_prior}.
+ \item{\code{RHT_pvalue}}: The p-value of RHT tests with the lambda's in \code{RHT_opt_lambda}.
+ \item{\code{RHT_std}}: The standardized RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+ Take its maximum to get the statistic of ARHT test.
+ \item{\code{Theta1}}: As defined in Li et al. (2016), the estimated asymptotic means of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+ \item{\code{Theta2}}: As defined in Li et al. (2016), \code{2*Theta2} are the estimated asymptotic variances of RHT statistics the lambda's in \code{RHT_opt_lambda}.
+ \item{\code{Corr_RHT}}: The estimated correlation matrix of the statistics in \code{RHT_std}.
 }
 }
 \description{
-This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et. al., 2016) for the one- and two- sample mean test problems, where
-we're interested in detecting the mean vector in the one- sample problem or the difference between mean vectors
-in the two-sample problem in a high dimensional regime.
+This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016) for the one-sample
+             and two-sample test problem, where we're interested in detecting the mean vector in the one-sample problem or the difference
+             between mean vectors in the two-sample problem in a high dimensional regime.
 }
 \details{
-The method incorporates ridge-regularization in the classic
-Hotelling's \eqn{T^2} test with the regularization parameter chosen such that the power under a class of probabilistic
-alternatives prior models is maximized. ARHT then combines the results from different prior models by taking the maximum
-of statistics under all models. Its p-value is bootstrapped, therefore not deterministic. Various methods are available to calibrate Type-1 error rate of the ARHT, including Cube-root
-transformation, square-root transformation and chi-squared approximation.
+The method incorprates ridge-regularization in the classic Hotelling's \eqn{T^2} test with the regularization parameter
+         chosen such that the asymptotic power under a class of probabilistic alternative prior models is maximized. ARHT combines
+         different prior models by taking the maximum of statistics under all models. ARHT is distributed as the maximum
+         of a correlated multivariate normal random vector. We estimate its covariance matrix and bootstrap its distribution. The
+         returned p-value is a Monte Carlo approximation to its true value using the bootstrap sample, therefore not deterministic.
+         Various methods are available to calibrate the slightly inflated Type 1 error rate of ARHT, including Cube-root transformation,
+         square-root transformation and chi-square approximation.
 }
 \examples{
 set.seed(10086)
@@ -84,10 +91,9 @@ RejectOrNot = res4$ARHT_pvalue < 0.05
 
 }
 \references{
-Li, H., Aue, A., Paul, D., Peng, J., & Wang, P. (2016). \emph{
-An adaptable generalization of Hotelling's  \eqn{T^2}
- test in high dimension.} arXiv preprint arXiv:1609.08725.
+Li, H. Aue, A., Paul, D. Peng, J., & Wang, P. (2016). \emph{An adaptable generalization of Hotelling's \eqn{T^2} test in high dimension.}
+            arXiv:1609:08725.
 
-Chen, L. S., Paul, D., Prentice, R. L., & Wang, P. (2011).
-\emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.} Journal of the American Statistical Association, 106(496), 1345-1360.
+Chen, L., Paul, D., Prentice, R., & Wang, P. (2011). \emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.}
+            Journal of the American Statistical Association, 106(496), 1345-1360.
 }

@@ -38,7 +38,7 @@
 #'  \item{\code{ARHT_pvalue}}: The p-value of ARHT test.
 #'                             \itemize{
 #'                              \item If \code{length(prob_alt_prior)==1}, it is identical to RHT_pvalue.
-#'                              \item If \code{\code{length(prob_alt_prior)>1}}, it is the p-value after combining results from all prior models. The vaule is
+#'                              \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models. The vaule is
 #'                                    bootstrapped, therefore not deterministic.
 #'                              }
 #'  \item{\code{RHT_opt_lambda}}: The optimal lambda's chosen under each of the prior models in \code{prob_alt_prior}. It has the same length and order as

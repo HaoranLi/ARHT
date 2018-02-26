@@ -6,41 +6,7 @@
 \usage{
 eigen_proj_1samp(X, mu_0, lower_lambda = NULL)
 }
-\arguments{
-\item{X}{\code{X} as in \code{\link{ARHT}}.}
-
-\item{mu_0}{\code{mu_0} as in \code{\link{ARHT}}.}
-
-\item{lower_lambda}{the lower bound of the lambda sequence, that is \code{lambda_range[1]} as in \code{\link{ARHT}} if specified;
-otherwise \code{NULL}.}
-}
-\value{
-\itemize{\item{\code{n}}: degree of freedom of the sample covariance matrix.
-         \item{\code{pos_eig_val}}: positive eigenvalues of the sample covariance matrix.
-         \item{\code{proj_shift}}: the scaled projection of the distance between the sample mean and \code{mu_0}; see Description.
-         \item{\code{lower_bound}}: If \code{lower_lambda} specified, returns its value; if not,
-         returns the generated lower bound of the lambda sequence.
-}
-}
 \description{
-This is an internal function for \code{ARHT}, computing summary statistics for the one- sample mean test problem.
- The function returns positive eigenvalues of the sample covariance matrix,
- and the scaled projection onto the eigenspace of the sample covariance matrix of the distance between the sample
-  mean \eqn{\bar{X}} and \code{mu_0}, that is,
-  \deqn{n^{1/2} P^T (\bar{X} - mu_0),}
- where \eqn{P} is the eigenvector matrix of the sample covariance matrix.
- The function is designed to handle the situation when
- singular value algorithm in \code{svd()} does not converge, by adding ridge regularization term to
- the sample covariance matrix.
-}
-\examples{
-set.seed(10086)
-# One-sample test
-n1 = 300; p = 500
-X = matrix(rnorm(n1 * p), nrow = n1, ncol = p )
-eigen_proj_1samp(X, rep(0.01, times = p))
-}
-\seealso{
-\code{\link{ARHT}}, \code{\link{eigen_proj_2samp}}
+An internal function
 }
 \keyword{internal}

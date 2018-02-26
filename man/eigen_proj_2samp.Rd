@@ -6,45 +6,7 @@
 \usage{
 eigen_proj_2samp(X, Y, mu_0, lower_lambda = NULL)
 }
-\arguments{
-\item{X}{\code{X} as in \code{\link{ARHT}}.}
-
-\item{Y}{\code{Y} as in \code{\link{ARHT}}.}
-
-\item{mu_0}{\code{mu_0} as in \code{\link{ARHT}}.}
-
-\item{lower_lambda}{the lower bound of the lambda sequence, that is \code{lambda_range[1]} as in \code{\link{ARHT}} if specified;
-otherwise \code{NULL}.}
-}
-\value{
-\itemize{\item{\code{n}}: degree of freedom of the pooled sample covariance matrix.
-         \item{\code{pos_eig_val}}: positive eigenvalues of the pooled sample covariance matrix.
-         \item{\code{proj_shift}}: the scaled projection of the distance between the difference of the sample mean vectors \eqn{\bar{X}-\bar{Y}}
-         and \code{mu_0}; see Description.
-         \item{\code{lower_bound}}: If \code{lower_lambda} specified, returns its value; if not,
-         returns the generated lower bound of the lambda sequence.
-}
-}
 \description{
-This is an internal function for \code{ARHT}, computing summary statistics for the two-sample mean test problem.
- The function returns positive eigenvalues of the pooled sample covariance matrix,
- and the scaled projection onto the eigenspace of the pooled sample covariance matrix of the distance between the difference
-  of the sample mean vectors \eqn{\bar{X}- \bar{Y}} and \code{mu_0}, that is,
-  \deqn{n^{1/2} P^T (\bar{X} - \bar{Y} - mu_0),}
- where \eqn{P} is the eigenvector matrix of the pooled sample covariance matrix.
- The function is designed to handle the situation when
- singular value algorithm in \code{svd()} does not converge, by adding ridge regularization term to
- the pooled sample covariance matrix.
-}
-\examples{
-set.seed(10086)
-# Two-sample test
-n1 = 300; n2 =400; p = 500
-X = matrix(rnorm(n1 *p), nrow = n1, ncol = p)
-Y = matrix(rnorm(n2 *p), nrow = n2, ncol = p)
-eigen_proj_2samp(X, Y, rep(0.01, times = p))
-}
-\seealso{
-\code{\link{ARHT}}, \code{\link{eigen_proj_1samp}}
+An internal function
 }
 \keyword{internal}
