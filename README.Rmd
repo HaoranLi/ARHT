@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 # ARHT
 
-Perform the Adaptable Regularized Hotelling's T^2 test (ARHT) proposed by Li et al., arXiv:1609.08725. Both one- and two- sample mean test are available with various probabilistic alternative prior models. It contains a function to consistently estimate higher order moments of the population covariance spectral distribution using the spectral of the sample covariance matrix (Bai et al. (2010)). In addition, it contains a function to sample from 3-variate chi-squared random vectors approximately with a given correlation matrix when the degrees of freedom are large. 
+Perform the Adaptable Regularized Hotelling's $T^2$ test (ARHT) proposed by Li et al., arXiv:1609.08725. Both one- and two- sample mean test are available with various probabilistic alternative prior models. It contains a function to consistently estimate higher order moments of the population covariance spectral distribution using the spectral of the sample covariance matrix (Bai et al. (2010)). In addition, it contains a function to sample from 3-variate chi-squared random vectors approximately with a given correlation matrix when the degrees of freedom are large. 
 
 ## Installation
 
