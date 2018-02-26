@@ -1,12 +1,12 @@
 #' 3-variate positively correlated chi-squared sample generation when degrees of freedom are large
 #'@description Generate samples approximately from three positively correlated chi-squared random variables
-#'\eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))}
+#' \eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))}
 #' when the degrees of freedom \eqn{(d_1, d_2, d_3)} are large.
 #' @name r3chisq
 #' @details It is generally hard to sample from \eqn{(\chi^2(d_1), \chi^2(d_2), \chi^2(d_3))} with a designed correlation matrix.
 #'  In the algorithm, we approximate the random vector by \eqn{(z^T Q_1 z, z^T Q_2 z, z^T Q_3 z)}
 #'  where \eqn{z} is a standard norm random vector and \eqn{Q_1,Q_2,Q_3} are diagonal matrices
-#' with diagonal elements 1's and 0's. The designed positive correlations is approximated by carafully
+#'  with diagonal elements 1's and 0's. The designed positive correlations is approximated by carafully
 #'  selecting common locations of 1's on the diagonals. The generated sample may have slightly larger marginal degrees
 #'  of freedom than the inputted \code{df}, also slightly different covariances.
 #' @param size sample size.
