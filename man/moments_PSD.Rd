@@ -14,7 +14,7 @@ moments_PSD(eigenvalues, n, mom_degree)
 \item{mom_degree}{the maximum order of moments.}
 }
 \value{
-Estimators of moments from the first to the \code{mom_degree}-th order.
+Estimators of moments from the first to the \code{mom_degree} -th order.
 }
 \description{
 The function calculates consistent estimators of moments of the spectral distribution
@@ -25,7 +25,8 @@ set.seed(10086)
 n = 400; p= 500
 pop_eig = seq(10,1,length = p)
 # Data with covariance matrix diag(pop_eig)
-X=matrix(rnorm(n*p),n,p)\%*\%diag(sqrt(pop_eig))
+Z = matrix(rnorm(n*p),n,p)
+X = Z \%*\% diag(sqrt(pop_eig))
 raw_eig = svd(cov(X))$d
 emp_eig = raw_eig[raw_eig>=0]
 # Moments of population spectral distribution
