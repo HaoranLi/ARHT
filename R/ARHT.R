@@ -1,7 +1,7 @@
 #' An adaptable generalized Hotelling's \eqn{T^2} test for high dimensional data
 #' @export
 #' @import stats
-#' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016) for the one-sample
+#' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016, <arXiv:1609.08725>) for the one-sample
 #'              and two-sample test problem, where we're interested in detecting the mean vector in the one-sample problem or the difference
 #'              between mean vectors in the two-sample problem in a high dimensional regime.
 #'
@@ -31,7 +31,7 @@
 #' @param bs_size positive numeric with default value \code{1e5}; only effective when more than one prior models are specified in \code{prob_alt_prior};
 #'        control the size of the bootstrap sample used to approximate the ARHT p-value.
 #' @references Li, H. Aue, A., Paul, D. Peng, J., & Wang, P. (2016). \emph{An adaptable generalization of Hotelling's \eqn{T^2} test in high dimension.}
-#'             arXiv:1609:08725.
+#'             <arXiv:1609:08725>.
 #' @references Chen, L., Paul, D., Prentice, R., & Wang, P. (2011). \emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.}
 #'             Journal of the American Statistical Association, 106(496), 1345-1360.
 #' @return \itemize{

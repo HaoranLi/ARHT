@@ -19,7 +19,7 @@
 #' \item{\code{approx_cov}}: the true covariance matrix of \code{sample}.}
 #' @references Li, H., Aue, A., Paul, D., Peng, J., & Wang, P. (2016). \emph{
 #' An adaptable generalization of Hotelling's  \eqn{T^2}
-#'  test in high dimension.} arXiv preprint arXiv:1609.08725.
+#'  test in high dimension.} arXiv preprint <arXiv:1609.08725>.
 #' @examples
 #' set.seed(10086)
 #' cor_examp = matrix(c(1,1/6,2/3,1/6,1,2/3,2/3,2/3,1),3,3)

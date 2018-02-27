@@ -18,3 +18,5 @@ There were no ERRORs, WARNINGs or NOTEs.
 ## Downstream dependencies
 There are currently no downstream dependencies for this package. 
 
+## Changes according to CRAN maintainer's response 
+all arXiv IDs are in angle brackets now. 
