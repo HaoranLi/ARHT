@@ -2,7 +2,7 @@
 % Please edit documentation in R/moments_PSD.R
 \name{moments_PSD}
 \alias{moments_PSD}
-\title{Consistent estimators of high-order moments of the population spectral distribution for high-dimenional data}
+\title{Consistent estimators of high-order moments of the population spectral distribution for high-dimensional data}
 \usage{
 moments_PSD(eigenvalues, n, mom_degree)
 }

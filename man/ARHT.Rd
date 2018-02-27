@@ -16,7 +16,7 @@ is conducted on \code{X} and \code{Y}.}
 
 \item{mu_0}{the null hypothesis vector to be tested; if \code{NULL}, the default value is the 0 vector of length p.}
 
-\item{prob_alt_prior}{an unempty list; Each field is a numeric vector with sum 1. The default value is the "canonical weights"
+\item{prob_alt_prior}{a non-empty list; Each field is a numeric vector with sum 1. The default value is the "canonical weights"
 \code{list(c(1,0,0), c(0,1,0), c(0,0,1))}; Each field represents a probabilistic prior model specified by weights of \eqn{I_p},
 \eqn{\Sigma}, \eqn{\Sigma^2}, etc, where \eqn{\Sigma} is the population covariance matrix of the observations.}
 
@@ -40,7 +40,7 @@ control the size of the bootstrap sample used to approximate the ARHT p-value.}
  \item{\code{ARHT_pvalue}}: The p-value of ARHT test.
                             \itemize{
                              \item If \code{length(prob_alt_prior)==1}, it is identical to RHT_pvalue.
-                             \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models. The vaule is
+                             \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models. The value is
                                    bootstrapped, therefore not deterministic.
                              }
  \item{\code{RHT_opt_lambda}}: The optimal lambda's chosen under each of the prior models in \code{prob_alt_prior}. It has the same length and order as
@@ -59,7 +59,7 @@ This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARH
              between mean vectors in the two-sample problem in a high dimensional regime.
 }
 \details{
-The method incorprates ridge-regularization in the classic Hotelling's \eqn{T^2} test with the regularization parameter
+The method incorporates ridge-regularization in the classic Hotelling's \eqn{T^2} test with the regularization parameter
          chosen such that the asymptotic power under a class of probabilistic alternative prior models is maximized. ARHT combines
          different prior models by taking the maximum of statistics under all models. ARHT is distributed as the maximum
          of a correlated multivariate normal random vector. We estimate its covariance matrix and bootstrap its distribution. The

@@ -1,4 +1,4 @@
-#' Consistent estimators of high-order moments of the population spectral distribution for high-dimenional data
+#' Consistent estimators of high-order moments of the population spectral distribution for high-dimensional data
 #' @description  The function calculates consistent estimators of moments of the spectral distribution
 #' of the population covariance matrix given the spectral of the sample covariance matrix.
 #' @keywords population spectral moments estimators
