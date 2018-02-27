@@ -1,0 +1,14 @@
+---
+title: "News"
+author: "Haoran Li"
+date: "2/27/2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ARHT 1.0
+
+This is the initial submission of ARHT. 
