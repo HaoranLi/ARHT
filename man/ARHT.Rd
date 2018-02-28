@@ -39,7 +39,7 @@ control the size of the bootstrap sample used to approximate the ARHT p-value.}
 \itemize{
  \item{\code{ARHT_pvalue}}: The p-value of ARHT test.
                             \itemize{
-                             \item If \code{length(prob_alt_prior)==1}, it is identical to RHT_pvalue.
+                             \item If \code{length(prob_alt_prior)==1}, it is identical to \code{RHT_pvalue}.
                              \item If \code{length(prob_alt_prior)>1}, it is the p-value after combining results from all prior models. The value is
                                    bootstrapped, therefore not deterministic.
                              }
