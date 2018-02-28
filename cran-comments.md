@@ -17,3 +17,8 @@ Downstream dependencies
 -----------------------
 
 There are currently no downstream dependencies for this package.
+
+Changes according to CRAN maintainer's response
+-----------------------------------------------
+
+Fix citation formats.

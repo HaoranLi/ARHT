@@ -3,7 +3,7 @@
 ARHT
 ====
 
-Perform the Adaptable Regularized Hotelling's *T*<sup>2</sup> test (ARHT) proposed by Li et al., arXiv:1609.08725. Both one- and two- sample mean test are available with various probabilistic alternative prior models. It contains a function to consistently estimate higher order moments of the population covariance spectral distribution using the spectral of the sample covariance matrix (Bai et al. (2010)). In addition, it contains a function to sample from 3-variate chi-squared random vectors approximately with a given correlation matrix when the degrees of freedom are large.
+Perform the Adaptable Regularized Hotelling's *T*<sup>2</sup> test (ARHT) proposed by Li et al., (2016) arXiv:1609.08725. Both one- and two- sample mean test are available with various probabilistic alternative prior models. It contains a function to consistently estimate higher order moments of the population covariance spectral distribution using the spectral of the sample covariance matrix (Bai et al. (2010) <doi:10.1111/j.1467-842X.2010.00590.x>). In addition, it contains a function to sample from 3-variate chi-squared random vectors approximately with a given correlation matrix when the degrees of freedom are large.
 
 Installation
 ------------
