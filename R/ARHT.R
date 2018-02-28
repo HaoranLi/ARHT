@@ -1,7 +1,7 @@
 #' An adaptable generalized Hotelling's \eqn{T^2} test for high dimensional data
 #' @export
 #' @import stats
-#' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016, <arXiv:1609.08725>) for the one-sample
+#' @description This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., (2016) <arXiv:1609.08725>) for the one-sample
 #'              and two-sample test problem, where we're interested in detecting the mean vector in the one-sample problem or the difference
 #'              between mean vectors in the two-sample problem in a high dimensional regime.
 #'
@@ -46,8 +46,8 @@
 #'  \item{\code{RHT_pvalue}}: The p-value of RHT tests with the lambda's in \code{RHT_opt_lambda}.
 #'  \item{\code{RHT_std}}: The standardized RHT statistics with the lambda's in \code{RHT_opt_lambda}.
 #'  Take its maximum to get the statistic of ARHT test.
-#'  \item{\code{Theta1}}: As defined in Li et al. (2016), the estimated asymptotic means of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
-#'  \item{\code{Theta2}}: As defined in Li et al. (2016), \code{2*Theta2} are the estimated asymptotic variances of RHT statistics the lambda's in \code{RHT_opt_lambda}.
+#'  \item{\code{Theta1}}: As defined in Li et al. (2016) <arXiv:1609.08725>, the estimated asymptotic means of RHT statistics with the lambda's in \code{RHT_opt_lambda}.
+#'  \item{\code{Theta2}}: As defined in Li et al. (2016) <arXiv:1609.08725>, \code{2*Theta2} are the estimated asymptotic variances of RHT statistics the lambda's in \code{RHT_opt_lambda}.
 #'  \item{\code{Corr_RHT}}: The estimated correlation matrix of the statistics in \code{RHT_std}.
 #'}
 #' @examples

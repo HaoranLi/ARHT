@@ -44,5 +44,5 @@ cov2cor(a_sam$approx_cov) - cor_examp
 \references{
 Li, H., Aue, A., Paul, D., Peng, J., & Wang, P. (2016). \emph{
 An adaptable generalization of Hotelling's  \eqn{T^2}
- test in high dimension.} arXiv preprint arXiv:1609.08725.
+ test in high dimension.} arXiv preprint <arXiv:1609.08725>.
 }

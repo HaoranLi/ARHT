@@ -54,7 +54,7 @@ control the size of the bootstrap sample used to approximate the ARHT p-value.}
 }
 }
 \description{
-This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016) for the one-sample
+This function performs the adaptable regularized Hotelling's \eqn{T^2} test (ARHT) (Li et al., 2016, <arXiv:1609.08725>) for the one-sample
              and two-sample test problem, where we're interested in detecting the mean vector in the one-sample problem or the difference
              between mean vectors in the two-sample problem in a high dimensional regime.
 }
@@ -92,7 +92,7 @@ RejectOrNot = res4$ARHT_pvalue < 0.05
 }
 \references{
 Li, H. Aue, A., Paul, D. Peng, J., & Wang, P. (2016). \emph{An adaptable generalization of Hotelling's \eqn{T^2} test in high dimension.}
-            arXiv:1609:08725.
+            <arXiv:1609:08725>.
 
 Chen, L., Paul, D., Prentice, R., & Wang, P. (2011). \emph{A regularized Hotelling's \eqn{T^2} test for pathway analysis in proteomic studies.}
             Journal of the American Statistical Association, 106(496), 1345-1360.
