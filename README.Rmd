@@ -38,6 +38,11 @@ Perform the Adaptable Regularized Hotelling's $T^2$ test (ARHT) proposed by @ARH
 [![](https://cranlogs.r-pkg.org/badges/ARHT)](https://cran.r-project.org/package=ARHT)
 
 ## Installation
+You can install ARHT from CRAN with 
+
+```{r gh-installation, eval = FALSE}
+install.packages("ARHT")
+```
 
 You can install ARHT from github with:
 
