@@ -5,6 +5,11 @@ ARHT
 
 Perform the Adaptable Regularized Hotelling's *T*<sup>2</sup> test (ARHT) proposed by Li et al. (2016). Both one- and two- sample mean test are available with various probabilistic alternative prior models. It contains a function to consistently estimate higher order moments of the population covariance spectral distribution using the spectral of the sample covariance matrix. In addition, it contains a function to sample from 3-variate chi-squared random vectors approximately with a given correlation matrix when the degrees of freedom are large.
 
+CRAN download counts
+--------------------
+
+[![](https://cranlogs.r-pkg.org/badges/ARHT)](https://cran.r-project.org/package=ARHT)
+
 Installation
 ------------
 
@@ -22,6 +27,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(ARHT)
+#> Warning: package 'ARHT' was built under R version 3.4.4
 ## basic example code
 set.seed(10086)
 # One-sample test
