@@ -12,8 +12,13 @@ CRAN download counts
 
 Installation
 ------------
+You can install ARHT from CRAN with:
 
-You can install ARHT from github with:
+``` r
+install.packages("ARHT")
+```
+
+You can also install ARHT from github with:
 
 ``` r
 # install.packages("devtools")
